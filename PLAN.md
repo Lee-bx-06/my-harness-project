@@ -705,4 +705,4 @@ P3, P4 ──→ P10
   - T1.3 OpenAI LLM: completed in `src/llm/openai.ts`.
   - Tests: completed in `tests/unit/llm/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
-  - Commit hash: unavailable because this directory is not a git repository.
+  - Commit hash: `5ab799e74b4e3cd1f4ba45bd8b4bd966be738944`.
