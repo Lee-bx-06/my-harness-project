@@ -50,3 +50,33 @@
 - Human intervention:
   - Kept the implementation scoped to T2.1 only.
   - Did not implement file, shell, test, or git tools in this phase.
+
+## 2026-07-27 - T2.2 File Tool Red Phase
+
+- Task: T2.2 implement file read/write tools.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `FileTool` behavior with failing tests before implementation.
+- Baseline commit:
+  - `d888198 feat: implement tool registry`
+- Files changed:
+  - `tests/unit/tools/file.test.ts`
+- Key prompt/context:
+  - Follow TDD for P2.
+  - Add only failing tests for T2.2.
+  - Do not implement `src/tools/file.ts` yet.
+- Expected behavior captured by tests:
+  - Expose `file.read`, `file.write`, and `file.append` as registry-compatible tools.
+  - Read file content from a configured root directory.
+  - Support chunked reads with `offset` and `length`.
+  - Write content and return structured write metadata.
+  - Append content and return structured write metadata.
+  - Return structured failures for missing files.
+  - Validate required `path` and `content` parameters.
+- Verification command:
+  - `npm test -- tests/unit/tools/file.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/tools/file'`.
+- Human intervention:
+  - Kept the implementation absent to preserve the Red phase.
+  - Used temporary directories in tests to avoid modifying project files.
