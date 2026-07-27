@@ -28,3 +28,25 @@
   - Committed the failing test before moving to Green.
 - Commit:
   - `405c2e1 test: add failing tests for tool registry`
+
+## 2026-07-27 - T2.1 Tool Registry Green Phase
+
+- Task: T2.1 implement the tool registry center.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T2.1 registry tests pass.
+- Files changed:
+  - `src/tools/registry.ts`
+- Implementation notes:
+  - Added `ToolResult`, `Tool`, and `ToolRegistry`.
+  - Implemented `register`, `get`, and `list`.
+  - Added validation for blank tool names.
+  - Added errors for duplicate registration and unknown tool lookup.
+- Verification commands:
+  - `npm test -- tests/unit/tools/registry.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Kept the implementation scoped to T2.1 only.
+  - Did not implement file, shell, test, or git tools in this phase.
