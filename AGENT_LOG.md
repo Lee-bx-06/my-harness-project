@@ -80,3 +80,28 @@
 - Human intervention:
   - Kept the implementation absent to preserve the Red phase.
   - Used temporary directories in tests to avoid modifying project files.
+
+## 2026-07-27 - T2.2 File Tool Green Phase
+
+- Task: T2.2 implement file read/write tools.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T2.2 file tool tests pass.
+- Files changed:
+  - `src/tools/file.ts`
+  - `src/tools/registry.ts`
+- Implementation notes:
+  - Added `FileTool` with registry-compatible `file.read`, `file.write`, and `file.append` tools.
+  - `file.read` reads UTF-8 text and supports `offset` plus `length` chunked reads.
+  - `file.write` creates parent directories and writes through a temporary file before rename.
+  - `file.append` creates parent directories and appends UTF-8 content.
+  - File operations return structured `ToolResult` success/failure values.
+  - Updated `ToolResult` to a discriminated union so tool implementations can type-narrow success and failure results.
+- Verification commands:
+  - `npm test -- tests/unit/tools/file.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Kept security policy concerns scoped out of T2.2 except basic root path resolution.
+  - Did not implement shell, test, or git tools in this phase.

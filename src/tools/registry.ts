@@ -1,6 +1,12 @@
-export interface ToolResult {
-  success: boolean;
+export type ToolResult = ToolSuccessResult | ToolFailureResult;
+
+export interface ToolSuccessResult {
+  success: true;
   data?: unknown;
+}
+
+export interface ToolFailureResult {
+  success: false;
   error?: string;
 }
 
