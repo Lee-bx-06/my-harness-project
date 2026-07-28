@@ -222,6 +222,10 @@ interface Message {
 - 测试测试命令执行
 - 测试输出解析
 
+**提交记录**：
+- Red: `baf0469` - test: add failing tests for test tool
+- Green: `28772a2` - feat: implement test run tool
+
 ### T2.5：实现 Git 操作工具
 
 **目标**：实现 `git.status`, `git.commit` 工具
@@ -237,6 +241,11 @@ interface Message {
 **验证步骤**：
 - 编写单元测试：`tests/unit/tools/git.test.ts`
 - 测试 git status、commit
+
+**提交记录**：
+- Red: `95e23d4` - test: add failing tests for git tool
+- Green: `82faf8f` - feat: implement git tool
+- Refactor: `2c87961` - refactor: extract shared command runner
 
 ---
 
