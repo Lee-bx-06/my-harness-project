@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { runShellCommand } from './command';
 import type { Tool, ToolResult } from './registry';
 
 export class ShellTool {
@@ -57,115 +57,27 @@ function readShellExecInput(parameters: Record<string, unknown>): ShellExecInput
   };
 }
 
-function executeCommand(command: string, cwd?: string, timeoutMs?: number): Promise<ToolResult> {
-  return new Promise((resolve) => {
-    const child = spawn(command, {
-      cwd,
-      detached: process.platform !== 'win32',
-      shell: true,
-      windowsHide: true,
-    });
+async function executeCommand(command: string, cwd?: string, timeoutMs?: number): Promise<ToolResult> {
+  const result = await runShellCommand(command, { cwd, timeoutMs });
+  const data = {
+    stdout: result.stdout,
+    stderr: result.stderr,
+    exitCode: result.exitCode,
+    signal: result.signal,
+  };
 
-    let stdout = '';
-    let stderr = '';
-    let timedOut = false;
-    let settled = false;
-
-    const timer =
-      timeoutMs === undefined
-        ? undefined
-        : setTimeout(() => {
-            timedOut = true;
-            terminateProcess(child.pid);
-          }, timeoutMs);
-
-    child.stdout?.setEncoding('utf8');
-    child.stderr?.setEncoding('utf8');
-
-    child.stdout?.on('data', (chunk: string) => {
-      stdout += chunk;
-    });
-
-    child.stderr?.on('data', (chunk: string) => {
-      stderr += chunk;
-    });
-
-    child.on('error', (error) => {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-      if (timer) {
-        clearTimeout(timer);
-      }
-
-      resolve(
-        failure(`Failed to execute command. ${error.message}`, {
-          stdout,
-          stderr,
-          exitCode: null,
-        }),
-      );
-    });
-
-    child.on('close', (exitCode, signal) => {
-      if (settled) {
-        return;
-      }
-
-      settled = true;
-      if (timer) {
-        clearTimeout(timer);
-      }
-
-      const data = {
-        stdout,
-        stderr,
-        exitCode,
-        signal,
-      };
-
-      if (timedOut) {
-        resolve(failure(`Command timed out after ${timeoutMs}ms.`, data));
-        return;
-      }
-
-      if (exitCode !== 0) {
-        resolve(failure(`Command exited with code ${exitCode}.`, data));
-        return;
-      }
-
-      resolve({
-        success: true,
-        data,
-      });
-    });
-  });
-}
-
-function terminateProcess(pid: number | undefined): void {
-  if (pid === undefined) {
-    return;
+  if (result.timedOut) {
+    return failure(`Command timed out after ${timeoutMs}ms.`, data);
   }
 
-  if (process.platform === 'win32') {
-    spawn('taskkill', ['/pid', String(pid), '/T', '/F'], {
-      windowsHide: true,
-      stdio: 'ignore',
-    });
-    return;
+  if (result.exitCode !== 0) {
+    return failure(`Command exited with code ${result.exitCode}.`, data);
   }
 
-  try {
-    process.kill(-pid);
-  } catch {
-    try {
-      process.kill(pid);
-    } catch {
-      // The process may have already exited between timeout and termination.
-    }
-  }
+  return {
+    success: true,
+    data,
+  };
 }
 
 function failure(error: string, data?: unknown): FailureResult {

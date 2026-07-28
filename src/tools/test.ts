@@ -1,4 +1,4 @@
-import { spawn } from 'node:child_process';
+import { runShellCommand, type CommandResult } from './command';
 import type { Tool, ToolResult } from './registry';
 
 export class TestTool {
@@ -46,13 +46,6 @@ interface TestRunInput {
   cwd?: string;
 }
 
-interface CommandExecution {
-  stdout: string;
-  stderr: string;
-  exitCode: number | null;
-  signal: NodeJS.Signals | null;
-}
-
 interface TestRunData extends ParsedTestOutput {
   stdout: string;
   stderr: string;
@@ -92,47 +85,8 @@ function readTestRunInput(parameters: Record<string, unknown>): TestRunInput | F
   };
 }
 
-function executeCommand(command: string, cwd?: string): Promise<CommandExecution> {
-  return new Promise((resolve) => {
-    const child = spawn(command, {
-      cwd,
-      shell: true,
-      windowsHide: true,
-    });
-
-    let stdout = '';
-    let stderr = '';
-
-    child.stdout?.setEncoding('utf8');
-    child.stderr?.setEncoding('utf8');
-
-    child.stdout?.on('data', (chunk: string) => {
-      stdout += chunk;
-    });
-
-    child.stderr?.on('data', (chunk: string) => {
-      stderr += chunk;
-    });
-
-    child.on('error', (error) => {
-      stderr += `${error.message}\n`;
-      resolve({
-        stdout,
-        stderr,
-        exitCode: null,
-        signal: null,
-      });
-    });
-
-    child.on('close', (exitCode, signal) => {
-      resolve({
-        stdout,
-        stderr,
-        exitCode,
-        signal,
-      });
-    });
-  });
+async function executeCommand(command: string, cwd?: string): Promise<CommandResult> {
+  return runShellCommand(command, { cwd });
 }
 
 function parseTestOutput(output: string): ParsedTestOutput {

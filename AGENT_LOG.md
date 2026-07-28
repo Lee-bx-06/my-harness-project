@@ -1,5 +1,30 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - P2 Tool Command Runner Refactor
+
+- Task: refactor completed P2 tool implementations after T2.5.
+- Superpowers workflow stage: refactor.
+- Goal: remove duplicated command execution plumbing across tool implementations without changing tool behavior.
+- Files changed:
+  - `src/tools/command.ts`
+  - `src/tools/shell.ts`
+  - `src/tools/test.ts`
+  - `src/tools/git.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Added shared command execution helpers for shell commands and executable-file commands.
+  - Moved stdout, stderr, exit code, signal, timeout, and process-tree termination handling into `src/tools/command.ts`.
+  - Updated `ShellTool` to focus on parameter validation and shell result mapping.
+  - Updated `TestTool` to focus on test output parsing and pass/fail semantics.
+  - Updated `GitTool` to keep git-specific command sequencing and parsing while sharing execFile error capture.
+- Behavior changes:
+  - None intended.
+- Verification commands:
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-28 - T2.5 Git Tool Green Phase
 
 - Task: T2.5 implement the Git operation tool.

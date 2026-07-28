@@ -1,8 +1,5 @@
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
+import { runFileCommand, type CommandResult } from './command';
 import type { Tool, ToolResult } from './registry';
-
-const execFileAsync = promisify(execFile);
 
 export class GitTool {
   getTools(): Tool[] {
@@ -95,12 +92,6 @@ interface CommitInput extends CwdInput {
   message: string;
 }
 
-interface GitCommandResult {
-  stdout: string;
-  stderr: string;
-  exitCode: number | null;
-}
-
 type FailureResult = Extract<ToolResult, { success: false }>;
 
 function readCwdInput(parameters: Record<string, unknown>): CwdInput | FailureResult {
@@ -130,32 +121,12 @@ function readCommitInput(parameters: Record<string, unknown>): CommitInput | Fai
   };
 }
 
-async function runGit(args: string[], cwd?: string): Promise<GitCommandResult & { success: boolean }> {
-  try {
-    const result = await execFileAsync('git', args, { cwd });
-    return {
-      success: true,
-      stdout: result.stdout,
-      stderr: result.stderr,
-      exitCode: 0,
-    };
-  } catch (error) {
-    if (isExecError(error)) {
-      return {
-        success: false,
-        stdout: String(error.stdout ?? ''),
-        stderr: String(error.stderr ?? error.message),
-        exitCode: typeof error.code === 'number' ? error.code : null,
-      };
-    }
-
-    return {
-      success: false,
-      stdout: '',
-      stderr: error instanceof Error ? error.message : 'Unknown git error.',
-      exitCode: null,
-    };
-  }
+async function runGit(args: string[], cwd?: string): Promise<CommandResult & { success: boolean }> {
+  const result = await runFileCommand('git', args, { cwd });
+  return {
+    ...result,
+    success: result.exitCode === 0,
+  };
 }
 
 function parseBranch(line: string | undefined): string {
@@ -176,7 +147,7 @@ function parseStatusFile(line: string): { path: string; index: string; workingTr
   };
 }
 
-function gitErrorMessage(result: GitCommandResult, fallback: string): string {
+function gitErrorMessage(result: CommandResult, fallback: string): string {
   const output = `${result.stderr}\n${result.stdout}`.trim();
   return output === '' ? fallback : `${fallback} ${output}`;
 }
@@ -202,12 +173,4 @@ function failure(error: string, data?: unknown): FailureResult {
     error,
     data,
   };
-}
-
-function isExecError(error: unknown): error is Error & {
-  stdout?: string | Buffer;
-  stderr?: string | Buffer;
-  code?: string | number;
-} {
-  return error instanceof Error;
 }
