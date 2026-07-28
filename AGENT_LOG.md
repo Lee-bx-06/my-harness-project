@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - T2.5 Git Tool Green Phase
+
+- Task: T2.5 implement the Git operation tool.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T2.5 git tool tests pass.
+- Files changed:
+  - `src/tools/git.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `GitTool` with registry-compatible `git.status` and `git.commit` tools.
+  - Implemented `git.status` through `git status --short --branch`.
+  - Parsed branch name, clean flag, raw status output, and per-file index/working-tree status.
+  - Implemented `git.commit` by staging all changes, committing with a message, and returning the resulting hash.
+  - Returned structured failure metadata for git command errors.
+  - Validated optional `cwd` and required commit `message` parameters.
+- Verification commands:
+  - `npm test -- tests/unit/tools/git.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-28 - T2.5 Git Tool Red Phase
 
 - Task: T2.5 implement the Git operation tool.

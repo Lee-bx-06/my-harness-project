@@ -26,6 +26,11 @@ async function initRepo(rootDir: string): Promise<void> {
   await git(rootDir, 'config', 'user.email', 'test@example.com');
 }
 
+async function getBranch(rootDir: string): Promise<string> {
+  const { stdout } = await execFileAsync('git', ['branch', '--show-current'], { cwd: rootDir });
+  return stdout.trim();
+}
+
 async function git(cwd: string, ...args: string[]): Promise<void> {
   await execFileAsync('git', args, { cwd });
 }
@@ -76,13 +81,14 @@ test('GitTool exposes status and commit tools', () => {
 test('git.status returns branch, clean flag, raw output, and parsed files', async () => {
   await withTempDir(async (rootDir) => {
     await initRepo(rootDir);
+    const branch = await getBranch(rootDir);
     await writeFile(path.join(rootDir, 'README.md'), '# demo\n', 'utf8');
     const status = getTool(new GitTool().getTools(), 'git.status');
 
     const result = await status.execute({ cwd: rootDir });
 
     assertSuccess(result);
-    assert.equal(result.data.branch, 'master');
+    assert.equal(result.data.branch, branch);
     assert.equal(result.data.clean, false);
     assert.match(String(result.data.raw), /\?\? README\.md/);
     assertStatusFiles(result.data.files);
