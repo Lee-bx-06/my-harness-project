@@ -1,5 +1,28 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - T2.3 Shell Tool Green Phase
+
+- Task: T2.3 implement the shell command tool.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T2.3 shell tool tests pass.
+- Files changed:
+  - `src/tools/shell.ts`
+  - `src/tools/registry.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `ShellTool` with a registry-compatible `shell.exec` tool.
+  - Implemented shell command execution with stdout and stderr capture.
+  - Added optional `cwd` support.
+  - Added optional `timeoutMs` handling.
+  - Returned structured failure metadata for execution errors, non-zero exits, and timeouts.
+  - Extended `ToolFailureResult` so failures can carry structured data.
+- Verification commands:
+  - `npm test -- tests/unit/tools/shell.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-28 - T2.3 Shell Tool Red Phase
 
 - Task: T2.3 implement the shell command tool.

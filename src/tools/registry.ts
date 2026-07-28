@@ -8,6 +8,7 @@ export interface ToolSuccessResult {
 export interface ToolFailureResult {
   success: false;
   error?: string;
+  data?: unknown;
 }
 
 export interface Tool {
