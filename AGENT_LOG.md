@@ -1,5 +1,34 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - T2.3 Shell Tool Red Phase
+
+- Task: T2.3 implement the shell command tool.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `ShellTool` behavior with failing tests before implementation.
+- Baseline state:
+  - T2.1 and T2.2 are already implemented.
+  - Worktree was clean before this red phase.
+- Files changed:
+  - `tests/unit/tools/shell.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P2.
+  - Add only the failing tests for T2.3.
+  - Do not implement `src/tools/shell.ts` yet.
+- Expected behavior captured by tests:
+  - Expose `shell.exec` as a registry-compatible tool.
+  - Execute shell commands and capture stdout.
+  - Capture stderr separately from stdout.
+  - Run commands in the requested working directory.
+  - Return a structured failure including output metadata for non-zero exit codes.
+  - Enforce `timeoutMs` and return captured output on timeout.
+  - Validate required `command`, optional `cwd`, and optional `timeoutMs` parameters.
+- Verification command:
+  - `npm test -- tests/unit/tools/shell.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/tools/shell'`.
+
 ## 2026-07-27 - T2.1 Tool Registry Red Phase
 
 - Task: T2.1 implement the tool registry center.
