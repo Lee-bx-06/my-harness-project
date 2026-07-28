@@ -1,5 +1,34 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - T2.4 Test Tool Red Phase
+
+- Task: T2.4 implement the test running tool.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `TestTool` behavior with failing tests before implementation.
+- Baseline state:
+  - T2.1, T2.2, and T2.3 are already implemented.
+  - Worktree was clean before this red phase.
+- Files changed:
+  - `tests/unit/tools/test.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P2.
+  - Add only failing tests for T2.4.
+  - Do not implement `src/tools/test.ts` yet.
+- Expected behavior captured by tests:
+  - Expose `test.run` as a registry-compatible tool.
+  - Execute a test command and preserve stdout, stderr, and exit code.
+  - Support running commands in a requested working directory.
+  - Parse Jest-style test summaries into structured counts and failures.
+  - Parse Mocha-style test summaries into structured counts and failures.
+  - Return structured failure metadata when tests fail.
+  - Validate required `command` and optional `cwd` parameters.
+- Verification command:
+  - `npm test -- tests/unit/tools/test.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/tools/test'`.
+
 ## 2026-07-28 - P2 T2.1-T2.3 Refactor Review
 
 - Task: review completed P2 tool tasks before starting T2.4.
