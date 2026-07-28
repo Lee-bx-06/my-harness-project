@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - T2.4 Test Tool Green Phase
+
+- Task: T2.4 implement the test running tool.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T2.4 test tool tests pass.
+- Files changed:
+  - `src/tools/test.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `TestTool` with a registry-compatible `test.run` tool.
+  - Implemented test command execution with stdout, stderr, exit code, and signal capture.
+  - Added optional `cwd` support.
+  - Added Jest-style summary parsing for total, passed, failed, and failure titles.
+  - Added Mocha-style summary parsing for total, passed, failed, and failure titles.
+  - Returned structured failure metadata when the test command fails or parsed failures are present.
+- Verification commands:
+  - `npm test -- tests/unit/tools/test.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-28 - T2.4 Test Tool Red Phase
 
 - Task: T2.4 implement the test running tool.
