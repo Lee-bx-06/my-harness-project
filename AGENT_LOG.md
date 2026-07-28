@@ -1,5 +1,28 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - P2 T2.1-T2.3 Refactor Review
+
+- Task: review completed P2 tool tasks before starting T2.4.
+- Superpowers workflow stage: refactor.
+- Scope reviewed:
+  - `src/tools/registry.ts`
+  - `src/tools/file.ts`
+  - `src/tools/shell.ts`
+  - `tests/unit/tools/*.test.ts`
+- Findings:
+  - `ToolRegistry` is small and cohesive; no refactor needed.
+  - `FileTool` keeps path resolution, validation, and file operations understandable within the current task boundary.
+  - `ShellTool` timeout and process termination logic is isolated enough for T2.3 and does not need extraction before T2.4.
+  - Test helper duplication exists across tool tests, but extracting shared helpers now would add cross-test coupling with little payoff.
+- Decision:
+  - No production or test code changes needed in this refactor pass.
+  - Proceed to T2.4 Red phase next.
+- Verification commands:
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-28 - T2.3 Shell Tool Green Phase
 
 - Task: T2.3 implement the shell command tool.
