@@ -1,5 +1,34 @@
 # AGENT_LOG.md
 
+## 2026-07-28 - T2.5 Git Tool Red Phase
+
+- Task: T2.5 implement the Git operation tool.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `GitTool` behavior with failing tests before implementation.
+- Baseline state:
+  - T2.1 through T2.4 are already implemented.
+  - Worktree was clean before this red phase.
+- Files changed:
+  - `tests/unit/tools/git.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P2.
+  - Add only failing tests for T2.5.
+  - Do not implement `src/tools/git.ts` yet.
+- Expected behavior captured by tests:
+  - Expose `git.status` and `git.commit` as registry-compatible tools.
+  - Return branch, clean flag, raw status output, and parsed file status entries.
+  - Report clean repositories after commit.
+  - Stage all changes and create commits with returned hash and message metadata.
+  - Return structured failures outside a git repository.
+  - Return structured failures when git user identity is not configured.
+  - Validate required `message` and optional `cwd` parameters.
+- Verification command:
+  - `npm test -- tests/unit/tools/git.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/tools/git'`.
+
 ## 2026-07-28 - T2.4 Test Tool Green Phase
 
 - Task: T2.4 implement the test running tool.
