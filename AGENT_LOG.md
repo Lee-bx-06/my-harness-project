@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-07-29 - T3.1 Threat Detector Green Phase
+
+- Task: T3.1 implement the threat detector.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T3.1 threat detector tests pass.
+- Files changed:
+  - `src/guardrail/threatDetector.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added regex-backed threat patterns for recursive force deletion, file deletion, forced git pushes, and hard git resets.
+  - Added action-to-command mapping for `git.push`, `git.reset`, and `shell.exec`.
+  - Returned structured threat matches with category, level, recommendation, reason, and matched pattern metadata.
+  - Aggregated threat level and recommendation using the highest severity and strictest recommendation.
+  - Kept implementation scoped to T3.1 test coverage.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/threatDetector.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-29 - T3.1 Threat Detector Red Phase
 
 - Task: T3.1 implement the threat detector.
