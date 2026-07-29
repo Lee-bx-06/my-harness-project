@@ -1,5 +1,34 @@
 # AGENT_LOG.md
 
+## 2026-07-29 - T3.1 Threat Detector Red Phase
+
+- Task: T3.1 implement the threat detector.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `ThreatDetector` behavior with failing tests before implementation.
+- Baseline state:
+  - P2 tool tasks are already implemented.
+  - `src/guardrail/threatDetector.ts` existed with behavior before this red phase, so it was reduced to a compile-safe empty implementation to restore the Red step.
+- Files changed:
+  - `tests/unit/guardrail/threatDetector.test.ts`
+  - `src/guardrail/threatDetector.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P3 T3.1.
+  - Add failing tests first.
+  - Remove the existing behavior implementation before validating Red.
+- Expected behavior captured by tests:
+  - Identify `rm -rf *` as a critical destructive command requiring confirmation.
+  - Identify forced git pushes as high-risk history rewrites requiring confirmation.
+  - Identify `git reset --hard` as a high-risk destructive reset requiring confirmation.
+  - Do not flag safe commands such as `npm test` or non-force `git.push`.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/threatDetector.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - Test command failed as expected in the Red phase.
+  - Failure reason: dangerous actions currently return `dangerous: false`.
+  - Typecheck passed.
+
 ## 2026-07-28 - P2 Tool Command Runner Refactor
 
 - Task: refactor completed P2 tool implementations after T2.5.
