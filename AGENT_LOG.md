@@ -1,5 +1,28 @@
 # AGENT_LOG.md
 
+## 2026-07-30 - T3.4 HITL State Machine Green Phase
+
+- Task: T3.4 implement the Human-in-the-Loop state machine.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T3.4 HITL tests pass.
+- Files changed:
+  - `src/guardrail/hitl.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `HITLStateMachine` with `pending`, `require-confirmation`, `approved`, and `rejected` states.
+  - Added interactive confirmation requests that resolve through `approve` or `reject`.
+  - Added timeout handling with a default timeout of 30 seconds.
+  - Added non-interactive mode that rejects confirmation requests immediately.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/hitl.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Kept the implementation scoped to T3.4 only.
+  - Did not integrate HITL into the guardrail main entry point; that remains scoped to T3.5.
+
 ## 2026-07-30 - T3.4 HITL State Machine Red Phase
 
 - Task: T3.4 implement the Human-in-the-Loop state machine.
