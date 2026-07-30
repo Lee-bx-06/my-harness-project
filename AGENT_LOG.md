@@ -1,5 +1,31 @@
 # AGENT_LOG.md
 
+## 2026-07-30 - T3.2 Policy Evaluator Red Phase
+
+- Task: T3.2 implement the policy evaluator.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `PolicyEvaluator` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/guardrail/policy.test.ts`
+  - `src/guardrail/policy.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Deny an action when a matching deny rule applies.
+  - Select the highest priority matching rule when multiple rules match.
+  - Support AND conditions through `all`.
+  - Support OR conditions through `any`.
+  - Return `allow` when no policy rule matches.
+- Implementation state:
+  - Added compile-safe policy types and a placeholder `PolicyEvaluator`.
+  - Placeholder implementation always returns `allow` so the Red phase fails on behavior.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/policy.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - Test command failed as expected in the Red phase.
+  - Failure reason: placeholder `PolicyEvaluator` returns `allow` for matching deny and require-confirmation rules.
+  - Typecheck passed.
+
 ## 2026-07-29 - T3.1 Threat Detector Green Phase
 
 - Task: T3.1 implement the threat detector.
