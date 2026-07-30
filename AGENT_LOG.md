@@ -1,5 +1,31 @@
 # AGENT_LOG.md
 
+## 2026-07-30 - T3.3 Sandbox Red Phase
+
+- Task: T3.3 implement sandbox management.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `Sandbox` boundary checks with failing tests before implementation.
+- Files changed:
+  - `tests/unit/guardrail/sandbox.test.ts`
+  - `src/guardrail/sandbox.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Block file operations outside configured allowed directories.
+  - Allow file operations inside configured allowed directories.
+  - Block shell commands whose executable is blacklisted.
+  - Block network commands when network access is disabled.
+  - Allow network commands when network access is enabled.
+- Implementation state:
+  - Added compile-safe sandbox types and a placeholder `Sandbox`.
+  - Placeholder implementation always returns `allowed: true` so the Red phase fails on boundary violations.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/sandbox.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - Test command failed as expected in the Red phase.
+  - Failure reason: placeholder `Sandbox` returns `allowed: true` for directory boundary, blocked command, and disabled-network violations.
+  - Typecheck passed.
+
 ## 2026-07-30 - T3.2 Policy Evaluator Green Phase
 
 - Task: T3.2 implement the policy evaluator.
