@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-07-30 - T3.5 Guardrail Entry Red Phase
+
+- Task: T3.5 implement the guardrail main entry point.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `Guardrail` orchestration behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/guardrail/index.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Allow safe actions when threat detection, policy, sandbox, and HITL checks pass.
+  - Deny dangerous actions when HITL rejects in non-interactive mode.
+  - Deny policy-blocked actions before requesting HITL.
+  - Deny actions that violate sandbox boundaries.
+  - Allow dangerous actions after HITL approval.
+- Verification command:
+  - `npm test -- tests/unit/guardrail/index.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/guardrail'`.
+- Human intervention:
+  - Kept `src/guardrail/index.ts` absent to preserve the Red phase requested for T3.5.
+
 ## 2026-07-30 - T3.4 HITL State Machine Green Phase
 
 - Task: T3.4 implement the Human-in-the-Loop state machine.
