@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-07-30 - T3.4 HITL State Machine Red Phase
+
+- Task: T3.4 implement the Human-in-the-Loop state machine.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `HITLStateMachine` confirmation behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/guardrail/hitl.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Transition from `require-confirmation` to `approved` when an operator approves.
+  - Transition from `require-confirmation` to `rejected` when an operator rejects.
+  - Reject pending confirmation requests after timeout.
+  - Reject confirmation requests immediately in non-interactive mode.
+- Verification command:
+  - `npm test -- tests/unit/guardrail/hitl.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/guardrail/hitl'`.
+- Human intervention:
+  - Kept `src/guardrail/hitl.ts` absent to preserve the Red phase requested for T3.4.
+
 ## 2026-07-30 - T3.3 Sandbox Green Phase
 
 - Task: T3.3 implement sandbox management.
