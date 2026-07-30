@@ -1,5 +1,25 @@
 # AGENT_LOG.md
 
+## 2026-07-30 - T3.3 Sandbox Green Phase
+
+- Task: T3.3 implement sandbox management.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T3.3 sandbox tests pass.
+- Files changed:
+  - `src/guardrail/sandbox.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added file action boundary checks against configured allowed directories.
+  - Added blocked executable checks for `shell.exec` commands.
+  - Added disabled-network checks for `curl` and `wget` shell commands.
+  - Kept default behavior permissive when a boundary option is not configured.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/sandbox.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-30 - T3.3 Sandbox Red Phase
 
 - Task: T3.3 implement sandbox management.
