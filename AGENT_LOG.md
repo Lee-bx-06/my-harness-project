@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-07-30 - T3.2 Policy Evaluator Green Phase
+
+- Task: T3.2 implement the policy evaluator.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T3.2 policy evaluator tests pass.
+- Files changed:
+  - `src/guardrail/policy.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added policy rule matching for direct field equality and regular expression matches.
+  - Added nested action field lookup through dot paths such as `parameters.command`.
+  - Added `all` and `any` composite condition evaluation.
+  - Selected the highest priority matching rule and returned its decision, matched rule, and reason.
+  - Kept the default decision as `allow` when no rule matches.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/policy.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+
 ## 2026-07-30 - T3.2 Policy Evaluator Red Phase
 
 - Task: T3.2 implement the policy evaluator.
