@@ -269,6 +269,10 @@ interface Message {
 - 测试识别 `rm -rf *`、`git push --force`、`git reset --hard`
 - 测试安全命令不被误判
 
+**提交记录**：
+- Red: `a25fe9a` - test: add failing tests for threat detector
+- Green: `90290cb` - feat: implement threat detector
+
 ### T3.2：实现策略评估器
 
 **目标**：实现规则引擎，评估动作是否符合策略
@@ -287,6 +291,10 @@ interface Message {
 - 测试策略规则匹配
 - 测试优先级处理
 - 测试组合条件
+
+**提交记录**：
+- Red: `fdec5cf` - test: add failing tests for policy evaluator
+- Green: `3544257` - feat: implement policy evaluator
 
 ### T3.3：实现沙箱管理
 
@@ -307,6 +315,10 @@ interface Message {
 - 测试黑名单命令被拦截
 - 测试网络访问控制
 
+**提交记录**：
+- Red: `1054c22` - test: add failing tests for sandbox management
+- Green: `d587f69` - feat: implement sandbox management
+
 ### T3.4：实现 HITL 状态机
 
 **目标**：实现 Human-in-the-Loop 状态机
@@ -326,6 +338,10 @@ interface Message {
 - 测试超时处理
 - 测试非交互式模式
 
+**提交记录**：
+- Red: `3f928ab` - test: add failing tests for HITL state machine
+- Green: `a6e0e8a` - feat: implement HITL state machine
+
 ### T3.5：实现护栏主入口
 
 **目标**：整合所有护栏组件，提供统一的护栏接口
@@ -343,6 +359,11 @@ interface Message {
 - 测试完整护栏流程
 - 测试危险动作被拦截
 - 测试安全动作被允许
+
+**提交记录**：
+- Red: `d4c1086` - test: add failing tests for guardrail entry
+- Green: `c2e8128` - feat: implement guardrail entry point
+- Refactor: `e9571eb` - refactor: guardrail entry flow
 
 ---
 
