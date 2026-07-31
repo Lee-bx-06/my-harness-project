@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-07-31 - T3.5 Guardrail Entry Green Phase
+
+- Task: T3.5 implement the guardrail main entry point.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T3.5 guardrail orchestration tests pass.
+- Files changed:
+  - `src/guardrail/index.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `Guardrail` as the main guardrail entry point.
+  - Orchestrated checks in the planned order: threat detection, policy evaluation, sandbox validation, then HITL confirmation when required.
+  - Returned a unified `GuardrailResult` with decision source, reason, threats, matched policy rule, sandbox violation, and HITL decision details where applicable.
+  - Kept behavior scoped to existing T3.1-T3.4 components without adding new guardrail rules.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/index.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the existing T3.5 Red phase with the smallest implementation needed for Green.
+
 ## 2026-07-30 - T3.5 Guardrail Entry Red Phase
 
 - Task: T3.5 implement the guardrail main entry point.
