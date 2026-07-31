@@ -2,10 +2,19 @@ import type { Action } from '../llm/base';
 import { HITLStateMachine, type HITLDecision } from './hitl';
 import { PolicyEvaluator, type PolicyRule } from './policy';
 import { Sandbox, type SandboxViolation } from './sandbox';
-import { ThreatDetector, type ThreatMatch } from './threatDetector';
+import {
+  ThreatDetector,
+  type ThreatDetectionResult,
+  type ThreatMatch,
+} from './threatDetector';
 
 export type GuardrailDecision = 'allow' | 'deny';
-export type GuardrailDecisionSource = 'guardrail' | 'threat-detector' | 'policy' | 'sandbox' | 'hitl';
+export type GuardrailDecisionSource =
+  | 'guardrail'
+  | 'threat-detector'
+  | 'policy'
+  | 'sandbox'
+  | 'hitl';
 
 export interface GuardrailOptions {
   threatDetector?: ThreatDetector;
@@ -42,48 +51,75 @@ export class Guardrail {
     const policyResult = this.policyEvaluator.evaluate(action);
 
     if (policyResult.decision === 'deny') {
-      return {
-        decision: 'deny',
-        source: 'policy',
-        reason: policyResult.reason,
-        threats: threatResult.threats,
-        matchedPolicyRule: policyResult.matchedRule,
-      };
+      return this.denyForPolicy(policyResult, threatResult);
     }
 
     const sandboxResult = this.sandbox.check(action);
     if (!sandboxResult.allowed) {
-      return {
-        decision: 'deny',
-        source: 'sandbox',
-        reason: sandboxResult.reason,
-        threats: threatResult.threats,
-        sandboxViolation: sandboxResult.violation,
-      };
+      return this.denyForSandbox(sandboxResult, threatResult);
     }
 
     if (threatResult.recommendation === 'deny') {
-      return {
-        decision: 'deny',
-        source: 'threat-detector',
-        reason: threatResult.threats[0]?.reason,
-        threats: threatResult.threats,
-      };
+      return this.denyForThreat(threatResult);
     }
 
-    const needsConfirmation =
-      threatResult.recommendation === 'require-confirmation' ||
-      policyResult.decision === 'require-confirmation';
-
-    if (!needsConfirmation) {
-      return {
-        decision: 'allow',
-        source: 'guardrail',
-        threats: threatResult.threats,
-      };
+    if (!requiresConfirmation(threatResult, policyResult)) {
+      return this.allow(threatResult);
     }
 
-    const reason = policyResult.reason ?? threatResult.threats[0]?.reason ?? 'Action requires confirmation.';
+    return this.confirm(action, policyResult, threatResult);
+  }
+
+  private denyForPolicy(
+    policyResult: ReturnType<PolicyEvaluator['evaluate']>,
+    threatResult: ThreatDetectionResult,
+  ): GuardrailResult {
+    return {
+      decision: 'deny',
+      source: 'policy',
+      reason: policyResult.reason,
+      threats: threatResult.threats,
+      matchedPolicyRule: policyResult.matchedRule,
+    };
+  }
+
+  private denyForSandbox(
+    sandboxResult: ReturnType<Sandbox['check']>,
+    threatResult: ThreatDetectionResult,
+  ): GuardrailResult {
+    return {
+      decision: 'deny',
+      source: 'sandbox',
+      reason: sandboxResult.reason,
+      threats: threatResult.threats,
+      sandboxViolation: sandboxResult.violation,
+    };
+  }
+
+  private denyForThreat(threatResult: ThreatDetectionResult): GuardrailResult {
+    return {
+      decision: 'deny',
+      source: 'threat-detector',
+      reason: threatResult.threats[0]?.reason,
+      threats: threatResult.threats,
+    };
+  }
+
+  private allow(threatResult: ThreatDetectionResult): GuardrailResult {
+    return {
+      decision: 'allow',
+      source: 'guardrail',
+      threats: threatResult.threats,
+    };
+  }
+
+  private async confirm(
+    action: Action,
+    policyResult: ReturnType<PolicyEvaluator['evaluate']>,
+    threatResult: ThreatDetectionResult,
+  ): Promise<GuardrailResult> {
+    const reason =
+      policyResult.reason ?? threatResult.threats[0]?.reason ?? 'Action requires confirmation.';
     const hitlDecision = await this.hitl.requestConfirmation(action, reason);
 
     return {
@@ -95,4 +131,14 @@ export class Guardrail {
       hitlDecision,
     };
   }
+}
+
+function requiresConfirmation(
+  threatResult: ThreatDetectionResult,
+  policyResult: ReturnType<PolicyEvaluator['evaluate']>,
+): boolean {
+  return (
+    threatResult.recommendation === 'require-confirmation' ||
+    policyResult.decision === 'require-confirmation'
+  );
 }

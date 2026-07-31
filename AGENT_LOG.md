@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-07-31 - T3.5 Guardrail Entry Refactor Phase
+
+- Task: T3.5 refactor the guardrail main entry point after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `Guardrail.evaluate` structure without changing behavior.
+- Files changed:
+  - `src/guardrail/index.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted decision result construction into focused private methods for policy denial, sandbox denial, threat denial, allow, and HITL confirmation paths.
+  - Extracted confirmation gating into `requiresConfirmation` so the main `evaluate` flow reads as the PLAN orchestration sequence.
+  - Preserved the existing public API and decision result fields.
+- Verification commands:
+  - `npm test -- tests/unit/guardrail/index.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T3.5 TDD refactor step.
+
 ## 2026-07-31 - T3.5 Guardrail Entry Green Phase
 
 - Task: T3.5 implement the guardrail main entry point.
