@@ -13,52 +13,57 @@ export interface Feedback {
 
 export class TestValidator {
   parse(output: string): Feedback[] {
-    return this.extractFeedback(output);
+    return this.parseOutput(output);
   }
 
   validate(output: string): Feedback[] {
-    return this.extractFeedback(output);
+    return this.parseOutput(output);
   }
 
-  private extractFeedback(output: string): Feedback[] {
+  private parseOutput(output: string): Feedback[] {
     const lines = output.split(/\r?\n/);
     const feedback: Feedback[] = [];
-    let pendingFramework: 'jest' | 'mocha' | undefined;
+    let currentFramework: 'jest' | 'mocha' | undefined;
 
     for (let index = 0; index < lines.length; index += 1) {
       const line = lines[index].trim();
 
-      if (line.startsWith('FAIL ')) {
-        pendingFramework = 'jest';
+      if (isJestFailureMarker(line)) {
+        currentFramework = 'jest';
         continue;
       }
 
-      const mochaFailure = line.match(/^\d+\)\s+(.+)$/);
-      if (mochaFailure) {
-        pendingFramework = 'mocha';
+      if (isMochaFailureMarker(line)) {
+        currentFramework = 'mocha';
         continue;
       }
 
-      if (pendingFramework && isErrorLine(line)) {
-        const location = findLocation(lines.slice(index + 1));
-
-        feedback.push({
-          type: 'failure',
-          category: classifyMessage(line),
-          message: line,
-          location,
-        });
-        pendingFramework = undefined;
+      if (!currentFramework) {
         continue;
       }
 
-      if (pendingFramework && line === '') {
-        pendingFramework = undefined;
+      if (line === '') {
+        currentFramework = undefined;
+        continue;
+      }
+
+      if (isErrorLine(line)) {
+        feedback.push(createFailure(line, lines.slice(index + 1)));
+        currentFramework = undefined;
       }
     }
 
     return feedback;
   }
+}
+
+function createFailure(message: string, remainingLines: string[]): Feedback {
+  return {
+    type: 'failure',
+    category: classifyMessage(message),
+    message,
+    location: findLocation(remainingLines),
+  };
 }
 
 function classifyMessage(message: string): Feedback['category'] {
@@ -83,6 +88,14 @@ function classifyMessage(message: string): Feedback['category'] {
 
 function isErrorLine(line: string): boolean {
   return /^((Type|Syntax)Error:|Error:)/.test(line);
+}
+
+function isJestFailureMarker(line: string): boolean {
+  return line.startsWith('FAIL ');
+}
+
+function isMochaFailureMarker(line: string): boolean {
+  return /^\d+\)\s+.+$/.test(line);
 }
 
 function findLocation(lines: string[]): FeedbackLocation | undefined {

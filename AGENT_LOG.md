@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T4.1 Feedback Validator Refactor Phase
+
+- Task: T4.1 refactor the feedback validator after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `TestValidator` structure without changing behavior.
+- Files changed:
+  - `src/feedback/validator.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Split the parser into explicit framework-marker detection and failure creation helpers.
+  - Renamed the main parsing path to `parseOutput` for clearer intent.
+  - Kept the public API and parsed feedback shape unchanged.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/validator.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T4.1 TDD refactor step.
+
 ## 2026-08-01 - T4.1 Feedback Validator Green Phase
 
 - Task: T4.1 implement the test result validator.
