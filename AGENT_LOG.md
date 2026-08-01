@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T5.1 Memory Store Refactor Phase
+
+- Task: T5.1 refactor the memory store after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `MemoryStore` structure without changing behavior.
+- Files changed:
+  - `src/memory/store.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted schema creation into a focused helper.
+  - Consolidated repeated memory SELECT columns and list query construction.
+  - Split record creation and update merging from SQLite persistence calls.
+  - Preserved the public API and persisted record shape.
+- Verification commands:
+  - `npm test -- tests/unit/memory/store.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T5.1 TDD refactor step.
+
 ## 2026-08-01 - T5.1 Memory Store Green Phase
 
 - Task: T5.1 implement the memory store.

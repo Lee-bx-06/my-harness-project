@@ -34,6 +34,8 @@ interface MemoryRow {
   expires_at: string | null;
 }
 
+const SELECT_MEMORY_COLUMNS = 'id, type, content, metadata, created_at, updated_at, expires_at';
+
 export class MemoryStore {
   private db?: sqlite3.Database;
 
@@ -41,19 +43,7 @@ export class MemoryStore {
 
   async initialize(): Promise<void> {
     this.db = await openDatabase(this.options.databasePath);
-    await run(this.database, `
-      CREATE TABLE IF NOT EXISTS memories (
-        id TEXT PRIMARY KEY,
-        type TEXT NOT NULL,
-        content TEXT NOT NULL,
-        metadata TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        expires_at TEXT
-      )
-    `);
-    await run(this.database, 'CREATE INDEX IF NOT EXISTS idx_memories_type ON memories(type)');
-    await run(this.database, 'CREATE INDEX IF NOT EXISTS idx_memories_expires_at ON memories(expires_at)');
+    await createSchema(this.database);
   }
 
   async close(): Promise<void> {
@@ -67,16 +57,7 @@ export class MemoryStore {
   }
 
   async save(memory: MemoryInput): Promise<MemoryRecord> {
-    const now = new Date();
-    const record: MemoryRecord = {
-      id: randomUUID(),
-      type: memory.type,
-      content: memory.content,
-      metadata: memory.metadata ?? {},
-      createdAt: now,
-      updatedAt: now,
-      expiresAt: memory.expiresAt,
-    };
+    const record = createRecord(memory);
 
     await run(
       this.database,
@@ -94,7 +75,7 @@ export class MemoryStore {
     const row = await get<MemoryRow>(
       this.database,
       `
-        SELECT id, type, content, metadata, created_at, updated_at, expires_at
+        SELECT ${SELECT_MEMORY_COLUMNS}
         FROM memories
         WHERE id = ?
       `,
@@ -105,25 +86,11 @@ export class MemoryStore {
   }
 
   async list(filter: { type?: MemoryType } = {}): Promise<MemoryRecord[]> {
-    const rows = filter.type
-      ? await all<MemoryRow>(
-          this.database,
-          `
-            SELECT id, type, content, metadata, created_at, updated_at, expires_at
-            FROM memories
-            WHERE type = ?
-            ORDER BY created_at ASC
-          `,
-          [filter.type],
-        )
-      : await all<MemoryRow>(
-          this.database,
-          `
-            SELECT id, type, content, metadata, created_at, updated_at, expires_at
-            FROM memories
-            ORDER BY created_at ASC
-          `,
-        );
+    const rows = await all<MemoryRow>(
+      this.database,
+      listQuery(filter),
+      filter.type ? [filter.type] : [],
+    );
 
     return rows.map(deserializeRow);
   }
@@ -132,17 +99,8 @@ export class MemoryStore {
     id: string,
     patch: Partial<Pick<MemoryInput, 'content' | 'metadata'>>,
   ): Promise<MemoryRecord> {
-    const existing = await this.get(id);
-    if (!existing) {
-      throw new Error(`Memory "${id}" was not found.`);
-    }
-
-    const updated: MemoryRecord = {
-      ...existing,
-      content: patch.content ?? existing.content,
-      metadata: patch.metadata ?? existing.metadata,
-      updatedAt: new Date(),
-    };
+    const existing = await this.requireMemory(id);
+    const updated = updateRecord(existing, patch);
 
     await run(
       this.database,
@@ -176,6 +134,15 @@ export class MemoryStore {
     return result.changes;
   }
 
+  private async requireMemory(id: string): Promise<MemoryRecord> {
+    const existing = await this.get(id);
+    if (!existing) {
+      throw new Error(`Memory "${id}" was not found.`);
+    }
+
+    return existing;
+  }
+
   private get database(): sqlite3.Database {
     if (!this.db) {
       throw new Error('MemoryStore has not been initialized.');
@@ -183,6 +150,22 @@ export class MemoryStore {
 
     return this.db;
   }
+}
+
+async function createSchema(db: sqlite3.Database): Promise<void> {
+  await run(db, `
+      CREATE TABLE IF NOT EXISTS memories (
+        id TEXT PRIMARY KEY,
+        type TEXT NOT NULL,
+        content TEXT NOT NULL,
+        metadata TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        expires_at TEXT
+      )
+    `);
+  await run(db, 'CREATE INDEX IF NOT EXISTS idx_memories_type ON memories(type)');
+  await run(db, 'CREATE INDEX IF NOT EXISTS idx_memories_expires_at ON memories(expires_at)');
 }
 
 function serializeRecord(record: MemoryRecord): unknown[] {
@@ -197,6 +180,32 @@ function serializeRecord(record: MemoryRecord): unknown[] {
   ];
 }
 
+function createRecord(memory: MemoryInput): MemoryRecord {
+  const now = new Date();
+
+  return {
+    id: randomUUID(),
+    type: memory.type,
+    content: memory.content,
+    metadata: memory.metadata ?? {},
+    createdAt: now,
+    updatedAt: now,
+    expiresAt: memory.expiresAt,
+  };
+}
+
+function updateRecord(
+  record: MemoryRecord,
+  patch: Partial<Pick<MemoryInput, 'content' | 'metadata'>>,
+): MemoryRecord {
+  return {
+    ...record,
+    content: patch.content ?? record.content,
+    metadata: patch.metadata ?? record.metadata,
+    updatedAt: new Date(),
+  };
+}
+
 function deserializeRow(row: MemoryRow): MemoryRecord {
   return {
     id: row.id,
@@ -207,6 +216,23 @@ function deserializeRow(row: MemoryRow): MemoryRecord {
     updatedAt: new Date(row.updated_at),
     expiresAt: row.expires_at ? new Date(row.expires_at) : undefined,
   };
+}
+
+function listQuery(filter: { type?: MemoryType }): string {
+  if (filter.type) {
+    return `
+      SELECT ${SELECT_MEMORY_COLUMNS}
+      FROM memories
+      WHERE type = ?
+      ORDER BY created_at ASC
+    `;
+  }
+
+  return `
+    SELECT ${SELECT_MEMORY_COLUMNS}
+    FROM memories
+    ORDER BY created_at ASC
+  `;
 }
 
 function openDatabase(databasePath: string): Promise<sqlite3.Database> {
