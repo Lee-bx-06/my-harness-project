@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T5.1 Memory Store Green Phase
+
+- Task: T5.1 implement the memory store.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T5.1 memory store tests pass.
+- Files changed:
+  - `src/memory/store.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `MemoryStore` backed by SQLite.
+  - Supported initialization, close, save, get, list, update, delete, and expired-memory cleanup.
+  - Serialized memory metadata as JSON and converted timestamp fields back to `Date` objects.
+  - Kept retrieval-specific ranking out of scope for T5.2.
+- Verification commands:
+  - `npm test -- tests/unit/memory/store.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T5.1 Green phase with the smallest implementation needed for the current red tests.
+
 ## 2026-08-01 - T5.1 Memory Store Red Phase
 
 - Task: T5.1 implement the memory store.
