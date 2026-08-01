@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T4.3 Feedback Loop Green Phase
+
+- Task: T4.3 implement the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T4.3 feedback loop tests pass.
+- Files changed:
+  - `src/feedback/loop.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `FeedbackLoop` with `append()`, `apply()`, and `run()` entry points.
+  - Sorted feedback entries by priority before appending them to the context.
+  - Enforced `maxEntries` to cap feedback volume.
+  - Kept the implementation scoped to the current feedback loop tests.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/loop.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T4.3 Green phase with the smallest implementation needed for the current red tests.
+
 ## 2026-08-01 - T4.3 Feedback Loop Red Phase
 
 - Task: T4.3 implement the feedback loop.
