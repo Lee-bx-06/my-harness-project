@@ -764,3 +764,11 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/llm/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hash: `5ab799e74b4e3cd1f4ba45bd8b4bd966be738944`.
+
+- P4 feedback loop: completed.
+  - T4.1 test result validator: completed in `src/feedback/validator.ts`.
+  - T4.2 failure classifier: completed in `src/feedback/classifier.ts`.
+  - T4.3 feedback loop: completed in `src/feedback/loop.ts`.
+  - Tests: completed in `tests/unit/feedback/*.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass.
+  - Commit hashes: `cdfc59b`, `32cf552`, `ea88531`, `95f24bf`, `ebe2cd1`, `0b0bf69`, `20d2119`, `fe7d4e1`, `3634cef`.
