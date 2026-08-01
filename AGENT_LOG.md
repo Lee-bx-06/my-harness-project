@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T5.1 Memory Store Red Phase
+
+- Task: T5.1 implement the memory store.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `MemoryStore` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/memory/store.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Save and read session, project, and long-term memories.
+  - Update, delete, and filter memories by type.
+  - Persist memories across store instances using the same SQLite database path.
+  - Clear expired memories while preserving active entries.
+- Verification command:
+  - `npm test -- tests/unit/memory/store.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/memory/store'`.
+- Human intervention:
+  - Kept `src/memory/store.ts` absent to preserve the Red phase requested for T5.1.
+
 ## 2026-08-01 - T4.3 Feedback Loop Refactor Phase
 
 - Task: T4.3 refactor the feedback loop after Green.
