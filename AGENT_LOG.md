@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T5.2 Memory Retriever Green Phase
+
+- Task: T5.2 implement the memory retriever.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T5.2 memory retriever tests pass.
+- Files changed:
+  - `src/memory/retriever.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `MemoryRetriever` with `retrieve()` and `search()` entry points.
+  - Retrieved memories from `MemoryStore` and scored them with simple keyword matching.
+  - Sorted results by descending relevance and applied optional type and limit filters.
+  - Added light token normalization for plural and persistence/persistent matching.
+- Verification commands:
+  - `npm test -- tests/unit/memory/retriever.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T5.2 Green phase with the smallest implementation needed for the current red tests.
+
 ## 2026-08-01 - T5.2 Memory Retriever Red Phase
 
 - Task: T5.2 implement the memory retriever.
