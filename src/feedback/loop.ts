@@ -20,16 +20,7 @@ export class FeedbackLoop {
     feedback: FeedbackEntry[],
     options: FeedbackLoopOptions = {},
   ): Message[] {
-    const prioritized = [...feedback].sort((left, right) => right.priority - left.priority);
-    const limited = typeof options.maxEntries === 'number' ? prioritized.slice(0, options.maxEntries) : prioritized;
-
-    return [
-      ...context,
-      ...limited.map((entry) => ({
-        role: 'assistant' as const,
-        content: formatFeedback(entry),
-      })),
-    ];
+    return this.buildContext(context, feedback, options);
   }
 
   apply(
@@ -37,7 +28,7 @@ export class FeedbackLoop {
     feedback: FeedbackEntry[],
     options: FeedbackLoopOptions = {},
   ): Message[] {
-    return this.append(context, feedback, options);
+    return this.buildContext(context, feedback, options);
   }
 
   run(
@@ -45,7 +36,36 @@ export class FeedbackLoop {
     feedback: FeedbackEntry[],
     options: FeedbackLoopOptions = {},
   ): Message[] {
-    return this.append(context, feedback, options);
+    return this.buildContext(context, feedback, options);
+  }
+
+  private buildContext(
+    context: Message[],
+    feedback: FeedbackEntry[],
+    options: FeedbackLoopOptions,
+  ): Message[] {
+    const entries = this.limitEntries(this.sortByPriority(feedback), options.maxEntries);
+
+    return [...context, ...entries.map((entry) => this.toMessage(entry))];
+  }
+
+  private sortByPriority(feedback: FeedbackEntry[]): FeedbackEntry[] {
+    return [...feedback].sort((left, right) => right.priority - left.priority);
+  }
+
+  private limitEntries(feedback: FeedbackEntry[], maxEntries?: number): FeedbackEntry[] {
+    if (typeof maxEntries !== 'number') {
+      return feedback;
+    }
+
+    return feedback.slice(0, maxEntries);
+  }
+
+  private toMessage(entry: FeedbackEntry): Message {
+    return {
+      role: 'assistant',
+      content: formatFeedback(entry),
+    };
   }
 }
 

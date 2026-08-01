@@ -1,5 +1,26 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T4.3 Feedback Loop Refactor Phase
+
+- Task: T4.3 refactor the feedback loop after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `FeedbackLoop` structure without changing behavior.
+- Files changed:
+  - `src/feedback/loop.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Split context assembly into focused helper methods.
+  - Isolated priority sorting, entry limiting, and message mapping.
+  - Kept the public API and output unchanged.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/loop.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T4.3 TDD refactor step.
+
 ## 2026-08-01 - T4.3 Feedback Loop Green Phase
 
 - Task: T4.3 implement the feedback loop.
