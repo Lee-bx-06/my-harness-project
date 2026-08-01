@@ -9,6 +9,8 @@ export type RetrievedMemory = MemoryRecord & {
   relevance: number;
 };
 
+const UNIQUE_KEYWORD_WEIGHT = 10;
+
 export class MemoryRetriever {
   constructor(private readonly store: MemoryStore) {}
 
@@ -22,17 +24,25 @@ export class MemoryRetriever {
       return [];
     }
 
-    const memories = await this.store.list(options.type ? { type: options.type } : {});
-    const ranked = memories
-      .map((memory) => ({
-        ...memory,
-        relevance: scoreMemory(memory, keywords),
-      }))
-      .filter((memory) => memory.relevance > 0)
-      .sort((left, right) => right.relevance - left.relevance);
+    const memories = await this.loadCandidates(options);
+    const ranked = rankMemories(memories, keywords);
 
-    return typeof options.limit === 'number' ? ranked.slice(0, options.limit) : ranked;
+    return applyLimit(ranked, options.limit);
   }
+
+  private loadCandidates(options: MemoryRetrievalOptions): Promise<MemoryRecord[]> {
+    return this.store.list(options.type ? { type: options.type } : {});
+  }
+}
+
+function rankMemories(memories: MemoryRecord[], keywords: string[]): RetrievedMemory[] {
+  return memories
+    .map((memory) => ({
+      ...memory,
+      relevance: scoreMemory(memory, keywords),
+    }))
+    .filter((memory) => memory.relevance > 0)
+    .sort((left, right) => right.relevance - left.relevance);
 }
 
 function scoreMemory(memory: MemoryRecord, keywords: string[]): number {
@@ -44,7 +54,11 @@ function scoreMemory(memory: MemoryRecord, keywords: string[]): number {
     return score + occurrences;
   }, 0);
 
-  return uniqueMatches * 10 + occurrenceScore;
+  return uniqueMatches * UNIQUE_KEYWORD_WEIGHT + occurrenceScore;
+}
+
+function applyLimit(memories: RetrievedMemory[], limit?: number): RetrievedMemory[] {
+  return typeof limit === 'number' ? memories.slice(0, limit) : memories;
 }
 
 function tokenize(query: string): string[] {

@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T5.2 Memory Retriever Refactor Phase
+
+- Task: T5.2 refactor the memory retriever after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `MemoryRetriever` structure without changing behavior.
+- Files changed:
+  - `src/memory/retriever.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Split retrieval into candidate loading, ranking, and limit application.
+  - Extracted ranking into a standalone helper.
+  - Named the unique-keyword relevance weight.
+  - Preserved the public API and relevance ordering behavior.
+- Verification commands:
+  - `npm test -- tests/unit/memory/retriever.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T5.2 TDD refactor step.
+
 ## 2026-08-01 - T5.2 Memory Retriever Green Phase
 
 - Task: T5.2 implement the memory retriever.
