@@ -1,5 +1,25 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T4.3 Feedback Loop Red Phase
+
+- Task: T4.3 implement the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `FeedbackLoop` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/feedback/loop.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Append prioritized feedback to the end of the LLM context.
+  - Preserve existing context messages.
+  - Limit the amount of feedback included when a cap is configured.
+- Verification command:
+  - `npm test -- tests/unit/feedback/loop.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/feedback/loop'`.
+- Human intervention:
+  - Kept `src/feedback/loop.ts` absent to preserve the Red phase requested for T4.3.
+
 ## 2026-08-01 - T4.2 Failure Classifier Refactor Phase
 
 - Task: T4.2 refactor the failure classifier after Green.
