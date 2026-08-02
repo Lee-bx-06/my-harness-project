@@ -922,3 +922,26 @@
 - Human intervention:
   - Kept implementation scoped to schema definition only.
   - Did not implement config loading, default values, file format parsing, or merge behavior; those remain for T6.2.
+
+## 2026-08-02 - T6.1 Config Schema Refactor Phase
+
+- Task: T6.1 define configuration schema.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve schema maintainability without changing validated behavior.
+- Files changed:
+  - `src/config/schema.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted shared scalar validators for non-empty strings, non-empty string lists, positive integers, and non-negative integers.
+  - Reused the shared validators across LLM, guardrail, feedback, and memory schemas.
+  - Kept all public exports and parsing behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/schema.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 85 tests passed.
+- Human intervention:
+  - Kept the refactor limited to T6.1 schema readability and duplication reduction.
+  - Did not add new behavior or broaden the schema surface.

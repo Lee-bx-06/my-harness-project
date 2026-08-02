@@ -1,29 +1,34 @@
 import { z } from 'zod';
 
+const nonEmptyString = z.string().min(1);
+const nonEmptyStringList = z.array(nonEmptyString);
+const positiveInteger = z.number().int().positive();
+const nonNegativeInteger = z.number().int().min(0);
+
 export const llmConfigSchema = z.object({
-  provider: z.string().min(1),
-  model: z.string().min(1),
-  apiKeyEnv: z.string().min(1),
-  maxTokens: z.number().int().positive(),
+  provider: nonEmptyString,
+  model: nonEmptyString,
+  apiKeyEnv: nonEmptyString,
+  maxTokens: positiveInteger,
   temperature: z.number().min(0).max(2),
 }).strict();
 
 export const guardrailConfigSchema = z.object({
   enabled: z.boolean(),
-  requireConfirmation: z.array(z.string().min(1)),
-  allowedDirectories: z.array(z.string().min(1)),
-  blockedCommands: z.array(z.string().min(1)),
+  requireConfirmation: nonEmptyStringList,
+  allowedDirectories: nonEmptyStringList,
+  blockedCommands: nonEmptyStringList,
   allowNetwork: z.boolean(),
 }).strict();
 
 export const feedbackConfigSchema = z.object({
   enabled: z.boolean(),
-  maxRetries: z.number().int().min(0),
+  maxRetries: nonNegativeInteger,
 }).strict();
 
 export const memoryConfigSchema = z.object({
   enabled: z.boolean(),
-  maxHistory: z.number().int().positive(),
+  maxHistory: positiveInteger,
 }).strict();
 
 export const configSchema = z.object({
