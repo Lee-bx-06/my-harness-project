@@ -870,3 +870,30 @@
 - Human intervention:
   - Kept security policy concerns scoped out of T2.2 except basic root path resolution.
   - Did not implement shell, test, or git tools in this phase.
+
+## 2026-08-02 - T6.1 Config Schema Red Phase
+
+- Task: T6.1 define configuration schema.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected config schema behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/config/schema.test.ts`
+- Key prompt/context:
+  - Follow TDD for P6 configuration management.
+  - Add only the failing test portion for T6.1.
+  - Do not implement `src/config/schema.ts` yet.
+- Expected behavior captured by tests:
+  - Export `configSchema` and `Config` from `src/config/schema`.
+  - Accept a complete harness configuration with `llm`, `guardrail`, `feedback`, and `memory` sections.
+  - Require all top-level configuration sections.
+  - Validate numeric limits for LLM, feedback, and memory settings.
+  - Reject unknown configuration keys so plaintext secrets cannot be silently added.
+- Verification command:
+  - `npm test -- tests/unit/config/schema.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/config/schema'`.
+  - The command also executed the existing test glob; 80 existing tests passed and the new schema test file produced the single failure.
+- Human intervention:
+  - Kept the implementation absent to preserve the Red phase.
+  - Scoped the tests to T6.1 schema validation only; config file loading and default merging remain for T6.2.
