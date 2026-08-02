@@ -897,3 +897,28 @@
 - Human intervention:
   - Kept the implementation absent to preserve the Red phase.
   - Scoped the tests to T6.1 schema validation only; config file loading and default merging remain for T6.2.
+
+## 2026-08-02 - T6.1 Config Schema Green Phase
+
+- Task: T6.1 define configuration schema.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum schema implementation needed to make the T6.1 config schema tests pass.
+- Files changed:
+  - `src/config/schema.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added Zod schemas for LLM, guardrail, feedback, memory, and top-level harness config.
+  - Exported `configSchema` plus inferred `Config` and section-specific config types.
+  - Used strict objects to reject unknown keys.
+  - Enforced minimum numeric limits for token count, retries, and memory history.
+  - Constrained LLM temperature to the accepted `0` to `2` range.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/schema.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 85 tests passed.
+- Human intervention:
+  - Kept implementation scoped to schema definition only.
+  - Did not implement config loading, default values, file format parsing, or merge behavior; those remain for T6.2.
