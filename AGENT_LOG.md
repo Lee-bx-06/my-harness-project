@@ -1,5 +1,52 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.1 Argon2id Compliance Red Phase
+
+- Task: T7.1 tighten encryption utility tests for PLAN.md compliance.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add a failing test that makes the required Argon2id KDF observable.
+- Files changed:
+  - `tests/unit/security/encryption.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - The previous T7.1 tests covered key derivation behavior but did not prove the implementation used Argon2id.
+  - Add only the failing test for Argon2id compliance before changing implementation.
+- Expected behavior captured by tests:
+  - Encrypted payloads must record `kdf` as `argon2id`.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: expected payload `kdf` to be `argon2id`, actual value was `scrypt`.
+- Human intervention:
+  - Kept the current implementation unchanged to preserve the Red phase.
+  - Next Green phase should replace the current KDF with Argon2id and update payload metadata accordingly.
+
+## 2026-08-03 - T7.1 Encryption Green Phase
+
+- Task: T7.1 implement the encryption utility.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T7.1 encryption tests pass.
+- Files changed:
+  - `src/security/encryption.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `Encryption` with `encrypt()`, `decrypt()`, and `deriveKey()` methods.
+  - Used Node's built-in AES-256-GCM support for authenticated encryption.
+  - Stored salt, IV, auth tag, algorithm, KDF, and ciphertext in the encrypted JSON payload.
+  - Used Node's built-in `scrypt` KDF for the minimum dependency-free Green phase.
+  - Added payload validation and string parameter validation.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 87 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the T7.1 red tests.
+  - Did not add credential storage or keyring/file fallback behavior; those remain for T7.2.
+
 ## 2026-08-03 - T7.1 Encryption Red Phase
 
 - Task: T7.1 implement the encryption utility.

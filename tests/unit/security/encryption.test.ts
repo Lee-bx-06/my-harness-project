@@ -24,3 +24,12 @@ test('Encryption derives a stable key from the same passphrase and salt', async 
   assert.deepEqual(first, second);
   assert.notDeepEqual(first, third);
 });
+
+test('Encryption records Argon2id as the key derivation function', async () => {
+  const encryption = new Encryption();
+
+  const encrypted = await encryption.encrypt('api-key-secret', 'correct horse battery staple');
+  const payload = JSON.parse(encrypted) as Record<string, unknown>;
+
+  assert.equal(payload.kdf, 'argon2id');
+});
