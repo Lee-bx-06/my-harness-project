@@ -510,6 +510,11 @@ interface Message {
 - 测试配置验证
 - 测试默认值
 
+**提交记录**：
+- Red: `45cc6df` - test: add failing tests for schema
+- Green: `4bd7592` - feat: implement schema
+- Refactor: `e3314aa` - refactor: T6.1
+
 ### T6.2：实现配置加载器
 
 **目标**：实现配置文件加载和合并
@@ -528,6 +533,11 @@ interface Message {
 - 测试配置文件加载
 - 测试配置合并
 - 测试环境变量覆盖
+
+**提交记录**：
+- Red: `7a11e1b` - test: add failing tests for loader
+- Green: `3b20271` - feat: implement loader
+- Refactor: `483262e` - refactor: T6.2
 
 ---
 
@@ -789,3 +799,10 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/memory/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hashes: `0a00ee1`, `6e9cde1`, `06e74d3`, `7919bb8`, `042d8f4`, `04677cd`.
+
+- P6 configuration management: completed.
+  - T6.1 configuration schema: completed in `src/config/schema.ts`.
+  - T6.2 configuration loader: completed in `src/config/loader.ts`.
+  - Tests: completed in `tests/unit/config/*.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass.
+  - Commit hashes: `45cc6df`, `4bd7592`, `e3314aa`, `7a11e1b`, `3b20271`, `483262e`.
