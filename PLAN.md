@@ -806,12 +806,12 @@ P3, P4 ──→ P10
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hashes: `0a00ee1`, `6e9cde1`, `06e74d3`, `7919bb8`, `042d8f4`, `04677cd`.
 
-- P6 configuration management: partially completed.
+- P6 configuration management: completed.
   - T6.1 configuration schema: completed in `src/config/schema.ts`.
-  - T6.2 configuration loader: pending.
-  - Tests: completed in `tests/unit/config/schema.test.ts`.
+  - T6.2 configuration loader: completed in `src/config/loader.ts`.
+  - Tests: completed in `tests/unit/config/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
-  - Commit hashes: `45cc6df`, `4bd7592`, `e3314aa`.
+  - Commit hashes: `45cc6df`, `4bd7592`, `e3314aa`, `7a11e1b`, `3b20271`, `483262e`.
 
 - P7 credential security: completed.
   - T7.1 encryption utility: completed in `src/security/encryption.ts`.
