@@ -1,5 +1,31 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.2 Credential Manager Green Phase
+
+- Task: T7.2 implement credential secure storage.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T7.2 credential manager tests pass.
+- Files changed:
+  - `src/security/credential.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `CredentialManager` with `get()`, `set()`, `update()`, and `clear()` methods.
+  - Added an injected `KeyringAdapter` interface for OS keyring-compatible storage.
+  - Reads from keyring first and falls back to encrypted file storage when the keyring misses or is unavailable.
+  - Writes to keyring when available and falls back to encrypted file storage when keyring writes fail.
+  - Stores fallback credentials as an encrypted JSON map using the T7.1 `Encryption` helper.
+  - Creates parent directories for fallback files and writes encrypted content with `0o600` file mode.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/credential.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 91 tests passed.
+- Human intervention:
+  - Kept implementation scoped to the T7.2 red tests.
+  - Did not integrate a concrete OS keyring package or CLI credential commands in this phase.
+
 ## 2026-08-03 - T7.2 Credential Manager Red Phase
 
 - Task: T7.2 implement credential secure storage.
