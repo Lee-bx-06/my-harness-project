@@ -1,5 +1,30 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.1 Encryption Refactor Phase
+
+- Task: T7.1 refactor the encryption utility after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve encryption helper readability without changing validated behavior.
+- Files changed:
+  - `src/security/encryption.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted payload version and minimum Argon2 salt length constants.
+  - Centralized Argon2id options for the AES-256-GCM key length.
+  - Added small base64 encode/decode helpers for payload fields.
+  - Reused constants in payload validation to avoid duplicated literals.
+  - Preserved the public `Encryption` API and encrypted payload shape.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 88 tests passed.
+- Human intervention:
+  - Kept the refactor scoped to T7.1 code organization only.
+  - Did not add new behavior, credential storage, or audit remediation.
+
 ## 2026-08-03 - T7.1 Argon2id Compliance Green Phase
 
 - Task: T7.1 replace the temporary KDF with Argon2id.

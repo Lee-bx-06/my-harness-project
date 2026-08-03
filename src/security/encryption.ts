@@ -8,12 +8,20 @@ import * as argon2 from 'argon2';
 
 const ALGORITHM = 'aes-256-gcm';
 const KDF = 'argon2id';
+const PAYLOAD_VERSION = 1;
 const KEY_LENGTH = 32;
 const IV_LENGTH = 12;
 const SALT_LENGTH = 16;
+const MIN_ARGON2_SALT_LENGTH = 8;
+
+const ARGON2_OPTIONS = {
+  type: argon2.argon2id,
+  hashLength: KEY_LENGTH,
+  raw: true,
+} as const;
 
 type EncryptedPayload = {
-  version: 1;
+  version: typeof PAYLOAD_VERSION;
   algorithm: typeof ALGORITHM;
   kdf: typeof KDF;
   salt: string;
@@ -37,13 +45,13 @@ export class Encryption {
     ]);
 
     const payload: EncryptedPayload = {
-      version: 1,
+      version: PAYLOAD_VERSION,
       algorithm: ALGORITHM,
       kdf: KDF,
-      salt: salt.toString('base64'),
-      iv: iv.toString('base64'),
-      authTag: cipher.getAuthTag().toString('base64'),
-      ciphertext: ciphertext.toString('base64'),
+      salt: toBase64(salt),
+      iv: toBase64(iv),
+      authTag: toBase64(cipher.getAuthTag()),
+      ciphertext: toBase64(ciphertext),
     };
 
     return JSON.stringify(payload);
@@ -54,13 +62,13 @@ export class Encryption {
     assertString(passphrase, 'passphrase');
 
     const payload = parsePayload(encrypted);
-    const key = await this.deriveKey(passphrase, Buffer.from(payload.salt, 'base64'));
-    const decipher = createDecipheriv(ALGORITHM, key, Buffer.from(payload.iv, 'base64'));
+    const key = await this.deriveKey(passphrase, fromBase64(payload.salt));
+    const decipher = createDecipheriv(ALGORITHM, key, fromBase64(payload.iv));
 
-    decipher.setAuthTag(Buffer.from(payload.authTag, 'base64'));
+    decipher.setAuthTag(fromBase64(payload.authTag));
 
     const plaintext = Buffer.concat([
-      decipher.update(Buffer.from(payload.ciphertext, 'base64')),
+      decipher.update(fromBase64(payload.ciphertext)),
       decipher.final(),
     ]);
 
@@ -73,10 +81,8 @@ export class Encryption {
     const saltBuffer = normalizeSalt(salt);
 
     return await argon2.hash(passphrase, {
-      type: argon2.argon2id,
       salt: saltBuffer,
-      hashLength: KEY_LENGTH,
-      raw: true,
+      ...ARGON2_OPTIONS,
     });
   }
 }
@@ -84,11 +90,19 @@ export class Encryption {
 function normalizeSalt(salt: string | Buffer): Buffer {
   const saltBuffer = Buffer.isBuffer(salt) ? salt : Buffer.from(salt, 'utf8');
 
-  if (saltBuffer.length >= 8) {
+  if (saltBuffer.length >= MIN_ARGON2_SALT_LENGTH) {
     return saltBuffer;
   }
 
   return createHash('sha256').update(saltBuffer).digest().subarray(0, SALT_LENGTH);
+}
+
+function toBase64(value: Buffer): string {
+  return value.toString('base64');
+}
+
+function fromBase64(value: string): Buffer {
+  return Buffer.from(value, 'base64');
 }
 
 function parsePayload(value: string): EncryptedPayload {
@@ -115,7 +129,7 @@ function isEncryptedPayload(value: unknown): value is EncryptedPayload {
   const payload = value as Record<string, unknown>;
 
   return (
-    payload.version === 1 &&
+    payload.version === PAYLOAD_VERSION &&
     payload.algorithm === ALGORITHM &&
     payload.kdf === KDF &&
     typeof payload.salt === 'string' &&
