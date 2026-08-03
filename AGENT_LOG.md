@@ -1,5 +1,30 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.1 Encryption Red Phase
+
+- Task: T7.1 implement the encryption utility.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add only the failing tests for the AES-256-GCM encryption helper before implementation.
+- Files changed:
+  - `tests/unit/security/encryption.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P7 credential security.
+  - Add only the failing test portion for T7.1.
+  - Do not implement `src/security/encryption.ts` yet.
+- Expected behavior captured by tests:
+  - Export an `Encryption` class from `src/security/encryption`.
+  - Support encrypt/decrypt round-trips for a secret string and passphrase.
+  - Derive stable keys from the same passphrase and salt, and different keys for different salts.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/security/encryption'`.
+- Human intervention:
+  - Kept the implementation absent to preserve the Red phase.
+  - Deferred `CredentialManager` work to T7.2.
+
 ## 2026-08-01 - T5.2 Memory Retriever Refactor Phase
 
 - Task: T5.2 refactor the memory retriever after Green.
