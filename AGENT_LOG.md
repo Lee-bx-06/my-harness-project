@@ -1,5 +1,30 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T6.2 Config Loader Refactor Phase
+
+- Task: T6.2 refactor configuration loading and merging after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `ConfigLoader` readability without changing behavior.
+- Files changed:
+  - `src/config/loader.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted config file encoding and supported extension constants.
+  - Replaced repeated environment override calls with a declarative override table.
+  - Split YAML parsing into helpers for comments, sections, array items, and key/value entries.
+  - Kept JSON/YAML loading, deep merge, environment override order, and schema validation behavior unchanged.
+  - Preserved the public `ConfigLoader` API and constructor options.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/loader.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 89 tests passed.
+- Human intervention:
+  - Kept the refactor scoped to T6.2 code organization only.
+  - Did not add new behavior or external YAML dependencies.
+
 ## 2026-08-03 - T6.2 Config Loader Green Phase
 
 - Task: T6.2 implement configuration loading and merging.

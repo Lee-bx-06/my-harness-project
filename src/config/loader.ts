@@ -2,12 +2,35 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { configSchema, type Config } from './schema';
 
+const CONFIG_FILE_ENCODING = 'utf8';
+const JSON_EXTENSIONS = new Set(['.json']);
+const YAML_EXTENSIONS = new Set(['.yaml', '.yml']);
+
 export type ConfigLoaderOptions = {
   defaults: Config;
   env?: NodeJS.ProcessEnv;
 };
 
 type ConfigInput = Record<string, unknown>;
+type EnvOverride = {
+  name: string;
+  path: string[];
+  parse: (value: string) => unknown;
+};
+
+const ENV_OVERRIDES: EnvOverride[] = [
+  { name: 'AGENT_LLM_PROVIDER', path: ['llm', 'provider'], parse: parseString },
+  { name: 'AGENT_LLM_MODEL', path: ['llm', 'model'], parse: parseString },
+  { name: 'AGENT_LLM_API_KEY_ENV', path: ['llm', 'apiKeyEnv'], parse: parseString },
+  { name: 'AGENT_LLM_MAX_TOKENS', path: ['llm', 'maxTokens'], parse: parseNumber },
+  { name: 'AGENT_LLM_TEMPERATURE', path: ['llm', 'temperature'], parse: parseNumber },
+  { name: 'AGENT_GUARDRAIL_ENABLED', path: ['guardrail', 'enabled'], parse: parseBoolean },
+  { name: 'AGENT_GUARDRAIL_ALLOW_NETWORK', path: ['guardrail', 'allowNetwork'], parse: parseBoolean },
+  { name: 'AGENT_FEEDBACK_ENABLED', path: ['feedback', 'enabled'], parse: parseBoolean },
+  { name: 'AGENT_FEEDBACK_MAX_RETRIES', path: ['feedback', 'maxRetries'], parse: parseNumber },
+  { name: 'AGENT_MEMORY_ENABLED', path: ['memory', 'enabled'], parse: parseBoolean },
+  { name: 'AGENT_MEMORY_MAX_HISTORY', path: ['memory', 'maxHistory'], parse: parseNumber },
+];
 
 export class ConfigLoader {
   private readonly defaults: Config;
@@ -19,7 +42,7 @@ export class ConfigLoader {
   }
 
   async load(configPath: string): Promise<Config> {
-    const content = await readFile(configPath, 'utf8');
+    const content = await readFile(configPath, CONFIG_FILE_ENCODING);
     const userConfig = parseConfigFile(configPath, content);
     const merged = deepMerge(this.defaults, userConfig);
     const withEnv = applyEnvOverrides(merged, this.env);
@@ -31,11 +54,11 @@ export class ConfigLoader {
 function parseConfigFile(configPath: string, content: string): ConfigInput {
   const extension = path.extname(configPath).toLowerCase();
 
-  if (extension === '.json') {
+  if (JSON_EXTENSIONS.has(extension)) {
     return JSON.parse(content) as ConfigInput;
   }
 
-  if (extension === '.yaml' || extension === '.yml') {
+  if (YAML_EXTENSIONS.has(extension)) {
     return parseYamlConfig(content);
   }
 
@@ -48,16 +71,16 @@ function parseYamlConfig(content: string): ConfigInput {
   let currentArrayKey: string | null = null;
 
   for (const rawLine of content.split(/\r?\n/)) {
-    const line = rawLine.replace(/\s+#.*$/, '');
+    const line = stripYamlComment(rawLine);
 
-    if (line.trim() === '' || line.trimStart().startsWith('#')) {
+    if (isBlankOrComment(line)) {
       continue;
     }
 
-    if (!line.startsWith(' ')) {
-      const section = line.trim().replace(/:$/, '');
-      currentSection = {};
-      root[section] = currentSection;
+    const trimmed = line.trim();
+
+    if (isTopLevelYamlKey(line)) {
+      currentSection = createSection(root, trimmed);
       currentArrayKey = null;
       continue;
     }
@@ -66,38 +89,70 @@ function parseYamlConfig(content: string): ConfigInput {
       throw new Error('Invalid YAML config.');
     }
 
-    const trimmed = line.trim();
-
-    if (trimmed.startsWith('- ')) {
-      const arrayValue = currentArrayKey === null ? null : currentSection[currentArrayKey];
-
-      if (!Array.isArray(arrayValue)) {
-        throw new Error('Invalid YAML config.');
-      }
-
-      arrayValue.push(parseScalar(trimmed.slice(2)));
+    if (isYamlArrayItem(trimmed)) {
+      appendArrayItem(currentSection, currentArrayKey, trimmed);
       continue;
     }
 
-    const separator = trimmed.indexOf(':');
+    const { key, value } = parseYamlKeyValue(trimmed);
 
-    if (separator === -1) {
-      throw new Error('Invalid YAML config.');
-    }
-
-    const key = trimmed.slice(0, separator);
-    const rawValue = trimmed.slice(separator + 1).trim();
-
-    if (rawValue === '') {
+    if (value === '') {
       currentSection[key] = [];
       currentArrayKey = key;
     } else {
-      currentSection[key] = parseScalar(rawValue);
+      currentSection[key] = parseScalar(value);
       currentArrayKey = null;
     }
   }
 
   return root;
+}
+
+function stripYamlComment(line: string): string {
+  return line.replace(/\s+#.*$/, '');
+}
+
+function isBlankOrComment(line: string): boolean {
+  return line.trim() === '' || line.trimStart().startsWith('#');
+}
+
+function isTopLevelYamlKey(line: string): boolean {
+  return !line.startsWith(' ');
+}
+
+function isYamlArrayItem(line: string): boolean {
+  return line.startsWith('- ');
+}
+
+function createSection(root: ConfigInput, line: string): ConfigInput {
+  const section = line.replace(/:$/, '');
+  const value: ConfigInput = {};
+  root[section] = value;
+
+  return value;
+}
+
+function appendArrayItem(section: ConfigInput, arrayKey: string | null, line: string): void {
+  const arrayValue = arrayKey === null ? null : section[arrayKey];
+
+  if (!Array.isArray(arrayValue)) {
+    throw new Error('Invalid YAML config.');
+  }
+
+  arrayValue.push(parseScalar(line.slice(2)));
+}
+
+function parseYamlKeyValue(line: string): { key: string; value: string } {
+  const separator = line.indexOf(':');
+
+  if (separator === -1) {
+    throw new Error('Invalid YAML config.');
+  }
+
+  return {
+    key: line.slice(0, separator),
+    value: line.slice(separator + 1).trim(),
+  };
 }
 
 function parseScalar(value: string): string | number | boolean {
@@ -137,37 +192,27 @@ function deepMerge(base: ConfigInput, override: ConfigInput): ConfigInput {
 function applyEnvOverrides(config: ConfigInput, env: NodeJS.ProcessEnv): ConfigInput {
   const result = deepMerge({}, config);
 
-  applyStringOverride(result, ['llm', 'provider'], env.AGENT_LLM_PROVIDER);
-  applyStringOverride(result, ['llm', 'model'], env.AGENT_LLM_MODEL);
-  applyStringOverride(result, ['llm', 'apiKeyEnv'], env.AGENT_LLM_API_KEY_ENV);
-  applyNumberOverride(result, ['llm', 'maxTokens'], env.AGENT_LLM_MAX_TOKENS);
-  applyNumberOverride(result, ['llm', 'temperature'], env.AGENT_LLM_TEMPERATURE);
-  applyBooleanOverride(result, ['guardrail', 'enabled'], env.AGENT_GUARDRAIL_ENABLED);
-  applyBooleanOverride(result, ['guardrail', 'allowNetwork'], env.AGENT_GUARDRAIL_ALLOW_NETWORK);
-  applyBooleanOverride(result, ['feedback', 'enabled'], env.AGENT_FEEDBACK_ENABLED);
-  applyNumberOverride(result, ['feedback', 'maxRetries'], env.AGENT_FEEDBACK_MAX_RETRIES);
-  applyBooleanOverride(result, ['memory', 'enabled'], env.AGENT_MEMORY_ENABLED);
-  applyNumberOverride(result, ['memory', 'maxHistory'], env.AGENT_MEMORY_MAX_HISTORY);
+  for (const override of ENV_OVERRIDES) {
+    const value = env[override.name];
+
+    if (value !== undefined) {
+      setNestedValue(result, override.path, override.parse(value));
+    }
+  }
 
   return result;
 }
 
-function applyStringOverride(config: ConfigInput, pathSegments: string[], value: string | undefined): void {
-  if (value !== undefined) {
-    setNestedValue(config, pathSegments, value);
-  }
+function parseString(value: string): string {
+  return value;
 }
 
-function applyNumberOverride(config: ConfigInput, pathSegments: string[], value: string | undefined): void {
-  if (value !== undefined) {
-    setNestedValue(config, pathSegments, Number(value));
-  }
+function parseNumber(value: string): number {
+  return Number(value);
 }
 
-function applyBooleanOverride(config: ConfigInput, pathSegments: string[], value: string | undefined): void {
-  if (value !== undefined) {
-    setNestedValue(config, pathSegments, value === 'true');
-  }
+function parseBoolean(value: string): boolean {
+  return value === 'true';
 }
 
 function setNestedValue(config: ConfigInput, pathSegments: string[], value: unknown): void {
