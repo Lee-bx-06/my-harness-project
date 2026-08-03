@@ -1,5 +1,32 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.1 Argon2id Compliance Green Phase
+
+- Task: T7.1 replace the temporary KDF with Argon2id.
+- Superpowers workflow stage: test-driven-development.
+- Goal: make the Argon2id compliance test pass while preserving encryption round-trip behavior.
+- Files changed:
+  - `src/security/encryption.ts`
+  - `package.json`
+  - `package-lock.json`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Replaced Node `scrypt` key derivation with the `argon2` package.
+  - Configured `argon2.hash()` with `type: argon2.argon2id`, `raw: true`, and a 32-byte output for AES-256-GCM.
+  - Updated encrypted payload metadata to record `kdf` as `argon2id`.
+  - Kept 16-byte random salts for encryption payloads.
+  - Normalized short externally supplied salts in `deriveKey()` so existing tests and callers can pass simple string salts.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 88 tests passed.
+- Human intervention:
+  - `argon2` was installed with `npm install argon2` before this implementation step.
+  - Did not address the npm audit report in this T7.1 scope.
+
 ## 2026-08-03 - T7.1 Argon2id Compliance Red Phase
 
 - Task: T7.1 tighten encryption utility tests for PLAN.md compliance.
