@@ -510,6 +510,11 @@ interface Message {
 - 测试配置验证
 - 测试默认值
 
+**提交记录**：
+- Red: `45cc6df` - test: add failing tests for schema
+- Green: `4bd7592` - feat: implement schema
+- Refactor: `e3314aa` - refactor: T6.1
+
 ### T6.2：实现配置加载器
 
 **目标**：实现配置文件加载和合并
@@ -551,6 +556,12 @@ interface Message {
 - 测试加密解密循环
 - 测试密钥派生
 
+**提交记录**：
+- Red: `494feb0` - test: add failing tests for encryption
+- Red: `89ebb1d` - tests: add Argon2id test for encryption
+- Green: `bf45751` - feat: implement encryption utility with Argon2id
+- Refactor: `b20ca5d` - refactor: T7.1
+
 ### T7.2：实现凭据安全存储
 
 **目标**：实现凭据的安全存储和管理
@@ -568,6 +579,11 @@ interface Message {
 - 编写单元测试：`tests/unit/security/credential.test.ts`
 - 测试凭据存储和读取
 - 测试凭据更新和清除
+
+**提交记录**：
+- Red: `27462f6` - add failing tests for credential
+- Green: `0bb970e` - feat: implement credential
+- Refactor: `0b6fd81` - refactor: T7.2
 
 ---
 
@@ -789,3 +805,17 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/memory/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hashes: `0a00ee1`, `6e9cde1`, `06e74d3`, `7919bb8`, `042d8f4`, `04677cd`.
+
+- P6 configuration management: partially completed.
+  - T6.1 configuration schema: completed in `src/config/schema.ts`.
+  - T6.2 configuration loader: pending.
+  - Tests: completed in `tests/unit/config/schema.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass.
+  - Commit hashes: `45cc6df`, `4bd7592`, `e3314aa`.
+
+- P7 credential security: completed.
+  - T7.1 encryption utility: completed in `src/security/encryption.ts`.
+  - T7.2 credential manager: completed in `src/security/credential.ts`.
+  - Tests: completed in `tests/unit/security/*.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass.
+  - Commit hashes: `494feb0`, `89ebb1d`, `bf45751`, `b20ca5d`, `27462f6`, `0bb970e`, `0b6fd81`.
