@@ -1,5 +1,31 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T6.2 Config Loader Green Phase
+
+- Task: T6.2 implement configuration loading and merging.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T6.2 config loader tests pass.
+- Files changed:
+  - `src/config/loader.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `ConfigLoader` with injected defaults and environment values.
+  - Loaded JSON configuration files.
+  - Added a minimal YAML parser for the project's object, scalar, and string-array config shape.
+  - Deep merged partial user config over defaults.
+  - Applied environment variable overrides after file/default merging.
+  - Validated the final merged config with `configSchema`.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/loader.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 89 tests passed.
+- Human intervention:
+  - Kept implementation scoped to the T6.2 red tests.
+  - Did not add an external YAML dependency in this minimum Green phase.
+
 ## 2026-08-03 - T6.2 Config Loader Red Phase
 
 - Task: T6.2 implement configuration loading and merging.
