@@ -1,5 +1,33 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.2 Credential Manager Red Phase
+
+- Task: T7.2 implement credential secure storage.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add only the failing tests for `CredentialManager` before implementation.
+- Files changed:
+  - `tests/unit/security/credential.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P7 credential security.
+  - Add only the failing test portion for T7.2.
+  - Do not implement `src/security/credential.ts` yet.
+- Expected behavior captured by tests:
+  - Export a `CredentialManager` class from `src/security/credential`.
+  - Store and read credentials through an injected keyring-compatible adapter.
+  - Support credential update and clear operations.
+  - Fall back to encrypted file storage when the keyring is unavailable.
+  - Avoid writing plaintext credentials into the encrypted fallback file.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/security/credential.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/security/credential'`.
+- Human intervention:
+  - Used in-memory and unavailable fake keyrings so tests do not touch the real operating system keyring.
+  - Used temporary credential files so tests do not modify user-level credential storage.
+  - Kept implementation absent to preserve the Red phase.
+
 ## 2026-08-03 - T7.1 Encryption Refactor Phase
 
 - Task: T7.1 refactor the encryption utility after Green.
