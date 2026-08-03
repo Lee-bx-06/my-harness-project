@@ -1,5 +1,30 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.2 Credential Manager Refactor Phase
+
+- Task: T7.2 refactor credential secure storage after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `CredentialManager` readability without changing behavior.
+- Files changed:
+  - `src/security/credential.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted fallback file encoding and permission constants.
+  - Split keyring access into `tryGetFromKeyring()`, `trySetInKeyring()`, and `tryDeleteFromKeyring()`.
+  - Extracted `deleteFromFile()` and `encryptStore()` helpers.
+  - Kept keyring-first reads and encrypted-file fallback behavior unchanged.
+  - Preserved the public `CredentialManager` API and constructor options.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/credential.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 91 tests passed.
+- Human intervention:
+  - Kept the refactor scoped to T7.2 code organization only.
+  - Did not add a concrete OS keyring package, CLI credential commands, or new behavior.
+
 ## 2026-08-03 - T7.2 Credential Manager Green Phase
 
 - Task: T7.2 implement credential secure storage.

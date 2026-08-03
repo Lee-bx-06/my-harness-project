@@ -2,6 +2,9 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Encryption } from './encryption';
 
+const FILE_ENCODING = 'utf8';
+const CREDENTIAL_FILE_MODE = 0o600;
+
 export type KeyringAdapter = {
   getPassword(service: string, account: string): Promise<string | null>;
   setPassword(service: string, account: string, password: string): Promise<void>;
@@ -40,14 +43,10 @@ export class CredentialManager {
   async get(name: string): Promise<string | null> {
     assertCredentialName(name);
 
-    try {
-      const value = await this.keyring.getPassword(this.serviceName, name);
+    const keyringValue = await this.tryGetFromKeyring(name);
 
-      if (value !== null) {
-        return value;
-      }
-    } catch {
-      return await this.getFromFile(name);
+    if (keyringValue !== null) {
+      return keyringValue;
     }
 
     return await this.getFromFile(name);
@@ -57,9 +56,7 @@ export class CredentialManager {
     assertCredentialName(name);
     assertString(value, 'value');
 
-    try {
-      await this.keyring.setPassword(this.serviceName, name, value);
-    } catch {
+    if (!await this.trySetInKeyring(name, value)) {
       await this.setInFile(name, value);
     }
   }
@@ -71,12 +68,36 @@ export class CredentialManager {
   async clear(name: string): Promise<void> {
     assertCredentialName(name);
 
+    await this.tryDeleteFromKeyring(name);
+    await this.deleteFromFile(name);
+  }
+
+  private async tryGetFromKeyring(name: string): Promise<string | null> {
+    try {
+      return await this.keyring.getPassword(this.serviceName, name);
+    } catch {
+      return null;
+    }
+  }
+
+  private async trySetInKeyring(name: string, value: string): Promise<boolean> {
+    try {
+      await this.keyring.setPassword(this.serviceName, name, value);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async tryDeleteFromKeyring(name: string): Promise<void> {
     try {
       await this.keyring.deletePassword(this.serviceName, name);
     } catch {
-      // Fall through to remove any encrypted fallback copy.
+      // Deleting the encrypted fallback still matters if the OS keyring is unavailable.
     }
+  }
 
+  private async deleteFromFile(name: string): Promise<void> {
     const credentials = await this.readFileStore();
     delete credentials[name];
     await this.writeFileStore(credentials);
@@ -98,7 +119,7 @@ export class CredentialManager {
     let encrypted: string;
 
     try {
-      encrypted = await readFile(this.storagePath, 'utf8');
+      encrypted = await readFile(this.storagePath, FILE_ENCODING);
     } catch (error) {
       if (isNodeError(error) && error.code === 'ENOENT') {
         return {};
@@ -120,12 +141,19 @@ export class CredentialManager {
   private async writeFileStore(credentials: CredentialStore): Promise<void> {
     await mkdir(path.dirname(this.storagePath), { recursive: true });
 
-    const encrypted = await this.encryption.encrypt(
+    const encrypted = await this.encryptStore(credentials);
+
+    await writeFile(this.storagePath, encrypted, {
+      encoding: FILE_ENCODING,
+      mode: CREDENTIAL_FILE_MODE,
+    });
+  }
+
+  private async encryptStore(credentials: CredentialStore): Promise<string> {
+    return await this.encryption.encrypt(
       JSON.stringify(credentials),
       this.masterPassphrase,
     );
-
-    await writeFile(this.storagePath, encrypted, { encoding: 'utf8', mode: 0o600 });
   }
 }
 
