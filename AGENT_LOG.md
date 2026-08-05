@@ -1,5 +1,28 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.1 Context Manager Green Phase
+
+- Task: T8.1 implement the context manager.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T8.1 context manager tests pass.
+- Files changed:
+  - `src/agent/context.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `ContextManager` with `build`, `compose`, and `organize` aliases.
+  - Assembled system, conversation, tool, and feedback messages into a single LLM input.
+  - Added a simple summary message when conversation history exceeds `maxHistory`.
+  - Added optional persistence via injected `save` / `load` adapter methods.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/context.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 94 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the minimum needed for T8.1.
+
 ## 2026-08-05 - T8.1 Context Manager Red Phase
 
 - Task: T8.1 implement the context manager.
