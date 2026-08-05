@@ -24,6 +24,10 @@ export interface AgentEvent {
   guardrail?: GuardrailResult;
 }
 
+interface AgentLoopState extends AgentRunResult {
+  consecutiveFailures: number;
+}
+
 export interface AgentOptions {
   llm: LLMInterface;
   contextManager?: ContextManager;
@@ -54,50 +58,24 @@ export class Agent {
   }
 
   async run(input: AgentRunInput): Promise<AgentRunResult> {
-    const state: AgentRunResult = {
-      completed: false,
-      iterations: 0,
-      actions: [],
-      toolResults: [],
-      messages: [{ role: 'user', content: input.instruction }],
-    };
-    let consecutiveFailures = 0;
+    const state = createInitialState(input.instruction);
 
     while (true) {
-      const stopResult = this.stopCondition.evaluate({
-        iteration: state.iterations + 1,
-        taskComplete: state.completed,
-        consecutiveFailures,
-      });
-
-      if (stopResult.shouldStop) {
-        state.stopReason = stopResult.reason;
+      if (this.applyStopCondition(state)) {
         return state;
       }
 
-      const action = await this.llm.generateAction(this.buildMessages(state.messages));
-      state.iterations += 1;
-      state.actions.push(action);
-      this.emit({ type: 'action', action });
+      const action = await this.nextAction(state);
 
-      if (action.type === 'finish') {
-        state.completed = true;
+      if (completeIfFinished(state, action)) {
         return state;
       }
 
-      const guardrailResult = await this.guardrail.evaluate(action);
-      this.emit({ type: 'guardrail', action, guardrail: guardrailResult });
-
-      if (guardrailResult.decision === 'deny') {
-        state.stopReason = 'guardrail-denied';
+      if (await this.applyGuardrail(state, action)) {
         return state;
       }
 
-      const result = await this.executeTool(action);
-      state.toolResults.push(result);
-      state.messages.push(toolResultMessage(action, result));
-      consecutiveFailures = result.success ? 0 : consecutiveFailures + 1;
-      this.emit({ type: 'tool-result', action, result });
+      await this.runTool(state, action);
     }
   }
 
@@ -116,6 +94,49 @@ export class Agent {
     });
   }
 
+  private applyStopCondition(state: AgentLoopState): boolean {
+    const stopResult = this.stopCondition.evaluate({
+      iteration: state.iterations + 1,
+      taskComplete: state.completed,
+      consecutiveFailures: state.consecutiveFailures,
+    });
+
+    if (!stopResult.shouldStop) {
+      return false;
+    }
+
+    state.stopReason = stopResult.reason;
+    return true;
+  }
+
+  private async nextAction(state: AgentLoopState): Promise<Action> {
+    const action = await this.llm.generateAction(this.buildMessages(state.messages));
+    state.iterations += 1;
+    state.actions.push(action);
+    this.emit({ type: 'action', action });
+    return action;
+  }
+
+  private async applyGuardrail(state: AgentLoopState, action: Action): Promise<boolean> {
+    const guardrailResult = await this.guardrail.evaluate(action);
+    this.emit({ type: 'guardrail', action, guardrail: guardrailResult });
+
+    if (guardrailResult.decision !== 'deny') {
+      return false;
+    }
+
+    state.stopReason = 'guardrail-denied';
+    return true;
+  }
+
+  private async runTool(state: AgentLoopState, action: Action): Promise<void> {
+    const result = await this.executeTool(action);
+    state.toolResults.push(result);
+    state.messages.push(toolResultMessage(action, result));
+    state.consecutiveFailures = result.success ? 0 : state.consecutiveFailures + 1;
+    this.emit({ type: 'tool-result', action, result });
+  }
+
   private async executeTool(action: Action): Promise<ToolResult> {
     return this.tools.get(action.type).execute(action.parameters);
   }
@@ -123,6 +144,26 @@ export class Agent {
   private emit(event: AgentEvent): void {
     this.onEvent?.(event);
   }
+}
+
+function createInitialState(instruction: string): AgentLoopState {
+  return {
+    completed: false,
+    iterations: 0,
+    actions: [],
+    toolResults: [],
+    messages: [{ role: 'user', content: instruction }],
+    consecutiveFailures: 0,
+  };
+}
+
+function completeIfFinished(state: AgentLoopState, action: Action): boolean {
+  if (action.type !== 'finish') {
+    return false;
+  }
+
+  state.completed = true;
+  return true;
 }
 
 function toolResultMessage(action: Action, result: ToolResult): Message {

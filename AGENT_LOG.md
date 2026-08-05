@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.3 Agent Main Loop Refactor Phase
+
+- Task: T8.3 implement the Agent main loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `Agent` main loop readability without changing behavior.
+- Files changed:
+  - `src/agent/mainLoop.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted initial loop state creation from `run`.
+  - Split stop-condition handling, LLM action generation, finish handling, guardrail handling, and tool execution into focused helpers.
+  - Kept public methods, event names, stop reasons, result shape, and context feedback behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/agent/mainLoop.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 102 tests passed.
+- Human intervention:
+  - Kept the refactor limited to internal loop organization.
+
 ## 2026-08-05 - T8.3 Agent Main Loop Green Phase
 
 - Task: T8.3 implement the Agent main loop.
