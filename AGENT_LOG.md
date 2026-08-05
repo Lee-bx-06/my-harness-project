@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.2 Stop Condition Refactor Phase
+
+- Task: T8.2 implement stop condition evaluation.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `StopCondition` readability without changing behavior.
+- Files changed:
+  - `src/agent/stopCondition.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Replaced the sequential `evaluate` conditionals with ordered stop rules.
+  - Extracted user abort and task completion checks into rule helpers.
+  - Kept public methods, stop order, result shape, and messages unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/stopCondition.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 99 tests passed.
+- Human intervention:
+  - Kept the refactor limited to rule organization and readability.
+
 ## 2026-08-05 - T8.2 Stop Condition Green Phase
 
 - Task: T8.2 implement stop condition evaluation.
