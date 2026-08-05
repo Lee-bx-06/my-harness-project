@@ -1,5 +1,25 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.3 Agent Main Loop Red Phase
+
+- Task: T8.3 implement the Agent main loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `Agent` orchestration behavior with failing integration tests before implementation.
+- Files changed:
+  - `tests/integration/agent/mainLoop.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Run a guarded tool action, execute the tool, feed the result into the next LLM turn, and emit action/tool events.
+  - Continue through multiple tool iterations until the LLM returns a finish action.
+  - Stop without executing a tool when guardrail denies an action.
+- Verification command:
+  - `node --test --require ts-node/register tests/integration/agent/mainLoop.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/agent/mainLoop' or its corresponding type declarations.`
+- Human intervention:
+  - Kept `src/agent/mainLoop.ts` absent to preserve the Red phase requested for T8.3.
+
 ## 2026-08-05 - T8.2 Stop Condition Refactor Phase
 
 - Task: T8.2 implement stop condition evaluation.
