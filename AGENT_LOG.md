@@ -1,5 +1,28 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.3 Agent Main Loop Green Phase
+
+- Task: T8.3 implement the Agent main loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T8.3 main loop integration tests pass.
+- Files changed:
+  - `src/agent/mainLoop.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `Agent` with `run`, `execute`, and `start` aliases.
+  - Orchestrated context building, LLM action generation, guardrail evaluation, tool dispatch, tool-result feedback, event callbacks, and stop condition checks.
+  - Treated `finish` as a completed run and guardrail denial as a stopped run without tool execution.
+  - Returned run metadata including completion state, iteration count, actions, tool results, messages, and stop reason.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/agent/mainLoop.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 102 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the minimum needed for T8.3 integration coverage.
+
 ## 2026-08-05 - T8.3 Agent Main Loop Red Phase
 
 - Task: T8.3 implement the Agent main loop.
