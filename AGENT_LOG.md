@@ -1,5 +1,25 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.1 Context Manager Red Phase
+
+- Task: T8.1 implement the context manager.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `ContextManager` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/agent/context.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Assemble system, conversation, tools, and feedback content into a single LLM prompt in order.
+  - Truncate long history while preserving the newest turn and a summary marker.
+  - Persist and restore session context through a storage adapter.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/agent/context.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/agent/context' or its corresponding type declarations.`
+- Human intervention:
+  - Kept `src/agent/context.ts` absent to preserve the Red phase requested for T8.1.
+
 ## 2026-08-03 - T7.2 Credential Manager Refactor Phase
 
 - Task: T7.2 refactor credential secure storage after Green.
