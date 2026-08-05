@@ -1,5 +1,28 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.2 Stop Condition Green Phase
+
+- Task: T8.2 implement stop condition evaluation.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T8.2 stop condition tests pass.
+- Files changed:
+  - `src/agent/stopCondition.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `StopCondition` with `evaluate`, `shouldStop`, and `check` aliases.
+  - Supported stop decisions for user abort, task completion, maximum iterations, and consecutive failures.
+  - Returned `{ shouldStop: false }` when no configured stop condition is met.
+  - Exported stop condition state, result, reason, and options types for main loop integration.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/stopCondition.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 99 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the minimum needed for T8.2.
+
 ## 2026-08-05 - T8.2 Stop Condition Red Phase
 
 - Task: T8.2 implement stop condition evaluation.
