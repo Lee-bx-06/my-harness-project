@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.2 Stop Condition Red Phase
+
+- Task: T8.2 implement stop condition evaluation.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `StopCondition` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/agent/stopCondition.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Continue while no configured stop condition is met.
+  - Stop at or beyond the configured maximum iteration count.
+  - Stop when the user aborts the run.
+  - Stop when the task is marked complete.
+  - Stop after the configured number of consecutive failures.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/agent/stopCondition.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/agent/stopCondition' or its corresponding type declarations.`
+- Human intervention:
+  - Kept `src/agent/stopCondition.ts` absent to preserve the Red phase requested for T8.2.
+
 ## 2026-08-05 - T8.1 Context Manager Refactor Phase
 
 - Task: T8.1 implement the context manager.
