@@ -1,5 +1,27 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.1 Context Manager Refactor Phase
+
+- Task: T8.1 implement the context manager.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `ContextManager` readability without changing behavior.
+- Files changed:
+  - `src/agent/context.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted message appending and summary insertion into top-level helpers.
+  - Moved tool, feedback, and message cloning helpers out of the class body.
+  - Kept public methods, output shape, and persistence behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/context.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 94 tests passed.
+- Human intervention:
+  - Kept the refactor limited to readability and helper extraction.
+
 ## 2026-08-05 - T8.1 Context Manager Green Phase
 
 - Task: T8.1 implement the context manager.

@@ -39,15 +39,12 @@ export class ContextManager {
 
   build(input: ContextInput): Message[] {
     const messages: Message[] = [{ role: 'system', content: input.systemPrompt }];
-    const conversation = this.applyHistoryLimit(input.messages);
+    const conversation = this.limitConversation(input.messages);
 
-    if (conversation.summary) {
-      messages.push({ role: 'assistant', content: conversation.summary });
-    }
-
-    messages.push(...conversation.messages);
-    messages.push(...this.formatTools(input.tools ?? []));
-    messages.push(...this.formatFeedback(input.feedback ?? []));
+    appendSummary(messages, conversation.summary);
+    appendMessages(messages, conversation.messages);
+    appendMessages(messages, formatTools(input.tools ?? []));
+    appendMessages(messages, formatFeedback(input.feedback ?? []));
 
     return messages;
   }
@@ -65,7 +62,7 @@ export class ContextManager {
       return;
     }
 
-    await this.persistence.save(sessionId, this.cloneMessages(messages));
+    await this.persistence.save(sessionId, cloneMessages(messages));
   }
 
   async save(sessionId: string, messages: Message[]): Promise<void> {
@@ -78,48 +75,60 @@ export class ContextManager {
     }
 
     const messages = await this.persistence.load(sessionId);
-    return messages?.map((message) => ({ ...message }));
+    return messages ? cloneMessages(messages) : undefined;
   }
 
   async load(sessionId: string): Promise<Message[] | undefined> {
     return this.restore(sessionId);
   }
 
-  private applyHistoryLimit(messages: Message[]): { messages: Message[]; summary?: string } {
+  private limitConversation(messages: Message[]): { messages: Message[]; summary?: string } {
     if (typeof this.maxHistory !== 'number' || this.maxHistory < 0 || messages.length <= this.maxHistory) {
-      return { messages: this.cloneMessages(messages) };
+      return { messages: cloneMessages(messages) };
     }
 
     const omitted = messages.length - this.maxHistory;
     return {
       summary: `Summary: ${omitted} earlier message${omitted === 1 ? '' : 's'} omitted.`,
-      messages: this.cloneMessages(messages.slice(-this.maxHistory)),
+      messages: cloneMessages(messages.slice(-this.maxHistory)),
     };
   }
+}
 
-  private formatTools(tools: ContextTool[]): Message[] {
-    return tools.map((tool) => ({
+function appendMessages(target: Message[], messages: Message[]): void {
+  target.push(...messages);
+}
+
+function appendSummary(target: Message[], summary?: string): void {
+  if (!summary) {
+    return;
+  }
+
+  target.push({ role: 'assistant', content: summary });
+}
+
+function formatTools(tools: ContextTool[]): Message[] {
+  return tools.map((tool) => ({
+    role: 'assistant',
+    content: `Tool ${tool.name}: ${tool.output}`,
+  }));
+}
+
+function formatFeedback(feedback: ContextFeedback[]): Message[] {
+  return feedback.map((entry) => {
+    const parts = [`Feedback [${entry.category}]:`, entry.message];
+
+    if (entry.suggestion) {
+      parts.push(entry.suggestion);
+    }
+
+    return {
       role: 'assistant',
-      content: `Tool ${tool.name}: ${tool.output}`,
-    }));
-  }
+      content: parts.join(' '),
+    };
+  });
+}
 
-  private formatFeedback(feedback: ContextFeedback[]): Message[] {
-    return feedback.map((entry) => {
-      const parts = [`Feedback [${entry.category}]:`, entry.message];
-
-      if (entry.suggestion) {
-        parts.push(entry.suggestion);
-      }
-
-      return {
-        role: 'assistant',
-        content: parts.join(' '),
-      };
-    });
-  }
-
-  private cloneMessages(messages: Message[]): Message[] {
-    return messages.map((message) => ({ ...message }));
-  }
+function cloneMessages(messages: Message[]): Message[] {
+  return messages.map((message) => ({ ...message }));
 }
