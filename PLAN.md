@@ -607,6 +607,11 @@ interface Message {
 - 测试上下文组装
 - 测试上下文长度控制
 
+**提交记录**：
+- Red: `8cb4458` - test: add failing tests for context
+- Green: `19584c8` - feat: implement context
+- Refactor: `1ade07d` - refacior: T8.1
+
 ### T8.2：实现停机条件判定
 
 **目标**：实现主循环的停机条件判定
@@ -622,6 +627,11 @@ interface Message {
 **验证步骤**：
 - 编写单元测试：`tests/unit/agent/stopCondition.test.ts`
 - 测试各种停机条件
+
+**提交记录**：
+- Red: `feeeac7` - test: add failing tests for stopCondition
+- Green: `7568323` - feat: implement stopConsition
+- Refactor: `177c729` - refactor: T8.2
 
 ### T8.3：实现 Agent 主循环
 
@@ -645,6 +655,11 @@ interface Message {
 - 编写集成测试：`tests/integration/agent/mainLoop.test.ts`
 - 使用 Mock LLM 测试完整循环
 - 测试多轮迭代
+
+**提交记录**：
+- Red: `133123c` - test: add failing tests for mainLoop
+- Green: `944136a` - feat: implement mainLoop
+- Refactor: `2f78fc7` - refactor: T8.3
 
 ---
 
@@ -819,3 +834,11 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/security/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hashes: `494feb0`, `89ebb1d`, `bf45751`, `b20ca5d`, `27462f6`, `0bb970e`, `0b6fd81`.
+
+- P8 Agent main loop: completed.
+  - T8.1 context manager: completed in `src/agent/context.ts`.
+  - T8.2 stop condition evaluation: completed in `src/agent/stopCondition.ts`.
+  - T8.3 Agent main loop: completed in `src/agent/mainLoop.ts`.
+  - Tests: completed in `tests/unit/agent/*.test.ts` and `tests/integration/agent/mainLoop.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass.
+  - Commit hashes: `8cb4458`, `19584c8`, `1ade07d`, `feeeac7`, `7568323`, `177c729`, `133123c`, `944136a`, `2f78fc7`.
