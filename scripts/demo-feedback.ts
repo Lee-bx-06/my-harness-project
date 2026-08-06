@@ -4,6 +4,7 @@ import { TestValidator, type Feedback } from '../src/feedback/validator';
 import type { Message } from '../src/llm/base';
 import { MockLLM } from '../src/llm/mock';
 
+const DEMO_TITLE = 'Feedback loop demo: failed test to corrected action';
 const FAILING_TEST_OUTPUT = [
   'FAIL src/math/add.test.ts',
   '  adds numbers',
@@ -13,29 +14,23 @@ const FAILING_TEST_OUTPUT = [
 ].join('\n');
 
 const PASSING_TEST_OUTPUT = 'Tests: 1 passed, 1 total';
+const BASE_CONTEXT: Message[] = [
+  { role: 'system', content: 'You are a coding agent.' },
+  { role: 'user', content: 'Fix the failing test using the feedback.' },
+];
 
 async function main(): Promise<void> {
-  console.log('Feedback loop demo: failed test to corrected action');
-  console.log('Initial test failure:');
-  console.log(FAILING_TEST_OUTPUT);
-
+  printInitialFailure();
   const feedback = parseFeedback(FAILING_TEST_OUTPUT);
   const classified = classifyFeedback(feedback);
-  console.log(`Feedback parsed: ${classified.length} item(s)`);
-  console.log(`Failure category: ${classified[0]?.category ?? 'unknown'}`);
-  console.log(`Suggestion: ${classified[0]?.suggestion ?? 'No suggestion.'}`);
+  printParsedFeedback(classified);
 
   const context = buildFeedbackContext(classified);
-  console.log('Agent received feedback context:');
-  console.log(context.map((message) => message.content).join('\n'));
+  printFeedbackContext(context);
 
   const correction = await generateCorrection(context);
-  console.log(`Correction action: ${correction.type}`);
-  console.log(`Correction detail: ${JSON.stringify(correction.parameters)}`);
-
-  console.log('Corrected test result:');
-  console.log(PASSING_TEST_OUTPUT);
-  console.log('Feedback loop success: tests passed after correction.');
+  printCorrection(correction);
+  printSuccess();
 }
 
 function parseFeedback(output: string): Feedback[] {
@@ -63,12 +58,7 @@ function priorityFor(category: FeedbackEntry['category']): number {
 }
 
 function buildFeedbackContext(feedback: FeedbackEntry[]): Message[] {
-  const baseContext: Message[] = [
-    { role: 'system', content: 'You are a coding agent.' },
-    { role: 'user', content: 'Fix the failing test using the feedback.' },
-  ];
-
-  return new FeedbackLoop().append(baseContext, feedback);
+  return new FeedbackLoop().append(BASE_CONTEXT, feedback);
 }
 
 async function generateCorrection(context: Message[]) {
@@ -86,6 +76,34 @@ async function generateCorrection(context: Message[]) {
   });
 
   return llm.generateAction(context);
+}
+
+function printInitialFailure(): void {
+  console.log(DEMO_TITLE);
+  console.log('Initial test failure:');
+  console.log(FAILING_TEST_OUTPUT);
+}
+
+function printParsedFeedback(feedback: FeedbackEntry[]): void {
+  console.log(`Feedback parsed: ${feedback.length} item(s)`);
+  console.log(`Failure category: ${feedback[0]?.category ?? 'unknown'}`);
+  console.log(`Suggestion: ${feedback[0]?.suggestion ?? 'No suggestion.'}`);
+}
+
+function printFeedbackContext(context: Message[]): void {
+  console.log('Agent received feedback context:');
+  console.log(context.map((message) => message.content).join('\n'));
+}
+
+function printCorrection(correction: Awaited<ReturnType<typeof generateCorrection>>): void {
+  console.log(`Correction action: ${correction.type}`);
+  console.log(`Correction detail: ${JSON.stringify(correction.parameters)}`);
+}
+
+function printSuccess(): void {
+  console.log('Corrected test result:');
+  console.log(PASSING_TEST_OUTPUT);
+  console.log('Feedback loop success: tests passed after correction.');
 }
 
 main().catch((error: unknown) => {

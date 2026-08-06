@@ -1560,3 +1560,27 @@
 - Human intervention:
   - Kept implementation scoped to T10.2 only.
   - Did not execute real filesystem changes; the correction action is deterministic demo output from `MockLLM`.
+
+## 2026-08-06 - T10.2 Feedback Demo Refactor Phase
+
+- Task: T10.2 demonstrate the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve feedback demo readability without changing observable behavior.
+- Files changed:
+  - `scripts/demo-feedback.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted the demo title, base context, and test output strings into named constants.
+  - Split initial failure output, parsed feedback output, feedback context output, correction output, and success output into focused helpers.
+  - Kept the deterministic feedback parsing, classification, feedback context, correction action, and final passing output unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/feedback.test.ts`
+  - `npx ts-node scripts/demo-feedback.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 105 tests passed.
+- Human intervention:
+  - Kept the refactor local to `scripts/demo-feedback.ts`.
+  - Did not extract shared demo helpers until T10.3 introduces enough repeated structure to justify it.
