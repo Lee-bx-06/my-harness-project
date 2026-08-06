@@ -1455,3 +1455,30 @@
 - Human intervention:
   - Kept `scripts/demo-guardrail.ts` absent to preserve the Red phase.
   - Scoped the test to T10.1 only; feedback and advanced guardrail demos remain for T10.2 and T10.3.
+
+## 2026-08-06 - T10.1 Guardrail Demo Green Phase
+
+- Task: T10.1 demonstrate guardrail blocking dangerous actions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum demo script needed to satisfy the T10.1 Red smoke test and PLAN verification command.
+- Files changed:
+  - `scripts/demo-guardrail.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a deterministic demo using `MockLLM` to emit a dangerous `shell.exec` action with `rm -rf /`.
+  - Ran the real `Agent` loop with a real `Guardrail` instance.
+  - Added a demo-scoped policy rule that denies the exact destructive command before any tool execution.
+  - Printed the dangerous action, guardrail decision, source, reason, threat count, and stop reason.
+  - Kept the tool registry empty so a missed guardrail denial would fail instead of executing anything.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrail.test.ts`
+  - `npx ts-node scripts/demo-guardrail.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Focused demo test passed.
+  - Full test suite result: 104 tests passed.
+- Human intervention:
+  - Kept implementation scoped to T10.1 only.
+  - Did not add shared demo helpers until later demo tasks create real duplication.
