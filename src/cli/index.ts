@@ -2,8 +2,11 @@ import { createCliProgram } from './program';
 
 export { createCliProgram, type CliProgramOptions } from './program';
 
-export async function main(argv: string[] = process.argv): Promise<void> {
-  await createCliProgram().parseAsync(argv);
+export async function main(
+  argv: string[] = process.argv,
+  program = createCliProgram(),
+): Promise<void> {
+  await program.parseAsync(argv);
 }
 
 if (require.main === module) {

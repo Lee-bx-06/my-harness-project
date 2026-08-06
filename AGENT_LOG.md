@@ -1404,3 +1404,29 @@
 - Human intervention:
   - Kept credential, config, and real agent startup behavior minimal; deeper persistence and runtime wiring remain outside this Green phase.
   - Used dependency injection to keep CLI unit tests deterministic and avoid touching real credentials or launching a real Agent.
+
+## 2026-08-06 - T9.1 CLI Refactor Phase
+
+- Task: T9.1 implement CLI command-line interface.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve the CLI implementation structure without changing behavior.
+- Files changed:
+  - `src/cli/program.ts`
+  - `src/cli/index.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted reusable CLI stream resolution and command output configuration helpers.
+  - Applied the same output wiring to subcommands so help and command actions share one path.
+  - Made `main` accept an injected program instance, keeping startup separate from program construction.
+  - Left command names, help text, and runtime behavior unchanged.
+- Verification commands:
+  - `npm run typecheck`
+  - `npm test -- tests/unit/cli/program.test.ts`
+  - `node bin/agent --help`
+  - `npm run build`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 103 tests passed.
+- Human intervention:
+  - Kept the refactor limited to CLI structure and dependency flow.
+  - Did not change user-facing command semantics or add new features.

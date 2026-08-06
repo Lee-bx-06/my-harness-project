@@ -11,58 +11,69 @@ export interface CliProgramOptions {
 }
 
 export function createCliProgram(options: CliProgramOptions = {}): Command {
-  const output = options.output ?? process.stdout;
-  const errorOutput = options.errorOutput ?? process.stderr;
+  const streams = resolveStreams(options);
   const tools = options.tools ?? new ToolRegistry();
   const runAgent = options.runAgent ?? defaultRunAgent;
 
   const program = new Command('agent');
-  configureProgram(program, output, errorOutput);
+  configureCommand(program, streams);
 
   program
     .description('Coding agent harness command-line interface.')
-    .addCommand(createRunCommand(runAgent, output))
-    .addCommand(createCredentialCommand(output, errorOutput))
-    .addCommand(createConfigCommand(output, errorOutput))
-    .addCommand(createToolsCommand(tools, output));
+    .addCommand(createRunCommand(runAgent, streams))
+    .addCommand(createCredentialCommand(streams))
+    .addCommand(createConfigCommand(streams))
+    .addCommand(createToolsCommand(tools, streams));
 
   makeHelpTestable(program);
 
   return program;
 }
 
-function configureProgram(program: Command, output: Writable, errorOutput: Writable): void {
+type CliStreams = Required<Pick<CliProgramOptions, 'output' | 'errorOutput'>>;
+
+function resolveStreams(options: CliProgramOptions): CliStreams {
+  return {
+    output: options.output ?? process.stdout,
+    errorOutput: options.errorOutput ?? process.stderr,
+  };
+}
+
+function configureCommand(program: Command, streams: CliStreams): void {
   program.configureOutput({
-    writeOut: (text) => output.write(text),
-    writeErr: (text) => errorOutput.write(text),
+    writeOut: (text) => streams.output.write(text),
+    writeErr: (text) => streams.errorOutput.write(text),
   });
 }
 
 function createRunCommand(
   runAgent: (instruction: string) => Promise<AgentRunResult>,
-  output: Writable,
+  streams: CliStreams,
 ): Command {
-  return new Command('run')
+  const command = new Command('run')
     .description('Start an agent session.')
     .option('-i, --instruction <instruction>', 'instruction to run in command mode')
     .action(async (commandOptions: { instruction?: string }) => {
       const instruction = commandOptions.instruction?.trim();
 
       if (!instruction) {
-        output.write('Interactive mode is not implemented yet.\n');
+        streams.output.write('Interactive mode is not implemented yet.\n');
         return;
       }
 
       const result = await runAgent(instruction);
       const status = result.completed ? 'completed' : 'stopped';
-      output.write(`Agent ${status} after ${result.iterations} iterations.\n`);
+      streams.output.write(`Agent ${status} after ${result.iterations} iterations.\n`);
     });
+
+  configureCommand(command, streams);
+  return command;
 }
 
-function createCredentialCommand(output: Writable, errorOutput: Writable): Command {
+function createCredentialCommand(streams: CliStreams): Command {
   const credential = new Command('credential')
     .description('Manage credentials.');
-  configureProgram(credential, output, errorOutput);
+  configureCommand(credential, streams);
 
   const setCommand = credential
     .command('set')
@@ -70,43 +81,43 @@ function createCredentialCommand(output: Writable, errorOutput: Writable): Comma
     .argument('<name>')
     .argument('<value>')
     .action((name: string) => {
-      output.write(`Credential ${name} set.\n`);
+      streams.output.write(`Credential ${name} set.\n`);
     });
-  configureProgram(setCommand, output, errorOutput);
+  configureCommand(setCommand, streams);
 
   const getCommand = credential
     .command('get')
     .description('Get a credential value.')
     .argument('<name>')
     .action((name: string) => {
-      output.write(`Credential ${name} is not configured.\n`);
+      streams.output.write(`Credential ${name} is not configured.\n`);
     });
-  configureProgram(getCommand, output, errorOutput);
+  configureCommand(getCommand, streams);
 
   const clearCommand = credential
     .command('clear')
     .description('Clear a credential value.')
     .argument('<name>')
     .action((name: string) => {
-      output.write(`Credential ${name} cleared.\n`);
+      streams.output.write(`Credential ${name} cleared.\n`);
     });
-  configureProgram(clearCommand, output, errorOutput);
+  configureCommand(clearCommand, streams);
 
   return credential;
 }
 
-function createConfigCommand(output: Writable, errorOutput: Writable): Command {
+function createConfigCommand(streams: CliStreams): Command {
   const config = new Command('config')
     .description('Manage configuration.');
-  configureProgram(config, output, errorOutput);
+  configureCommand(config, streams);
 
   const showCommand = config
     .command('show')
     .description('Show configuration.')
     .action(() => {
-      output.write('Configuration display is not implemented yet.\n');
+      streams.output.write('Configuration display is not implemented yet.\n');
     });
-  configureProgram(showCommand, output, errorOutput);
+  configureCommand(showCommand, streams);
 
   const setCommand = config
     .command('set')
@@ -114,21 +125,24 @@ function createConfigCommand(output: Writable, errorOutput: Writable): Command {
     .argument('<key>')
     .argument('<value>')
     .action((key: string) => {
-      output.write(`Configuration ${key} set.\n`);
+      streams.output.write(`Configuration ${key} set.\n`);
     });
-  configureProgram(setCommand, output, errorOutput);
+  configureCommand(setCommand, streams);
 
   return config;
 }
 
-function createToolsCommand(tools: ToolRegistry, output: Writable): Command {
-  return new Command('tools')
+function createToolsCommand(tools: ToolRegistry, streams: CliStreams): Command {
+  const command = new Command('tools')
     .description('List available tools.')
     .action(() => {
       for (const tool of tools.list()) {
-        output.write(`${tool.name}\t${tool.description}\n`);
+        streams.output.write(`${tool.name}\t${tool.description}\n`);
       }
     });
+
+  configureCommand(command, streams);
+  return command;
 }
 
 async function defaultRunAgent(_instruction: string): Promise<AgentRunResult> {
