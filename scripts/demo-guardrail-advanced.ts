@@ -4,8 +4,45 @@ import { PolicyEvaluator } from '../src/guardrail/policy';
 import { Sandbox } from '../src/guardrail/sandbox';
 import type { Action } from '../src/llm/base';
 
+const DEMO_TITLE = 'Advanced guardrail demo: policy, sandbox, and HITL dimensions';
+const POLICY_RULES = [
+  {
+    id: 'allow-tests',
+    decision: 'allow' as const,
+    priority: 5,
+    condition: {
+      field: 'parameters.command',
+      matches: '^npm\\s+test$',
+    },
+    reason: 'Test commands are allowed.',
+  },
+  {
+    id: 'deny-force-push',
+    decision: 'deny' as const,
+    priority: 20,
+    condition: {
+      all: [
+        { field: 'type', equals: 'git.push' },
+        { field: 'parameters.force', equals: true },
+      ],
+    },
+    reason: 'Force pushes are denied by policy.',
+  },
+];
+const SANDBOX_OPTIONS = {
+  allowedDirectories: ['D:/workspace/project'],
+  blockedCommands: ['format', 'shutdown'],
+};
+const SAFE_TEST_ACTION = action('shell.exec', { command: 'npm test' });
+const FORCE_PUSH_ACTION = action('git.push', { force: true });
+const OUTSIDE_FILE_ACTION = action('file.write', {
+  path: 'D:/workspace/secrets.env',
+  content: 'TOKEN=secret',
+});
+const BLOCKED_COMMAND_ACTION = action('shell.exec', { command: 'format C:' });
+
 async function main(): Promise<void> {
-  console.log('Advanced guardrail demo: policy, sandbox, and HITL dimensions');
+  console.log(DEMO_TITLE);
 
   demoPolicyEvaluation();
   demoSandboxBoundaries();
@@ -13,59 +50,44 @@ async function main(): Promise<void> {
 }
 
 function demoPolicyEvaluation(): void {
-  const policy = new PolicyEvaluator([
-    {
-      id: 'allow-tests',
-      decision: 'allow',
-      priority: 5,
-      condition: {
-        field: 'parameters.command',
-        matches: '^npm\\s+test$',
-      },
-      reason: 'Test commands are allowed.',
-    },
-    {
-      id: 'deny-force-push',
-      decision: 'deny',
-      priority: 20,
-      condition: {
-        all: [
-          { field: 'type', equals: 'git.push' },
-          { field: 'parameters.force', equals: true },
-        ],
-      },
-      reason: 'Force pushes are denied by policy.',
-    },
-  ]);
+  const policy = new PolicyEvaluator(POLICY_RULES);
+  const allowed = policy.evaluate(SAFE_TEST_ACTION);
+  const denied = policy.evaluate(FORCE_PUSH_ACTION);
 
-  const allowed = policy.evaluate(action('shell.exec', { command: 'npm test' }));
-  const denied = policy.evaluate(action('git.push', { force: true }));
+  printPolicyEvaluation(allowed.decision, denied.decision, denied.reason);
+}
 
+function printPolicyEvaluation(allowDecision: string, denyDecision: string, denyReason?: string): void {
   console.log('Policy evaluation:');
-  console.log(`Policy allow outcome: ${allowed.decision}`);
-  console.log(`Policy deny outcome: ${denied.decision}`);
-  console.log(`Policy deny reason: ${denied.reason}`);
+  console.log(`Policy allow outcome: ${allowDecision}`);
+  console.log(`Policy deny outcome: ${denyDecision}`);
+  console.log(`Policy deny reason: ${denyReason}`);
 }
 
 function demoSandboxBoundaries(): void {
-  const sandbox = new Sandbox({
-    allowedDirectories: ['D:/workspace/project'],
-    blockedCommands: ['format', 'shutdown'],
-  });
+  const sandbox = new Sandbox(SANDBOX_OPTIONS);
+  const directoryBoundary = sandbox.check(OUTSIDE_FILE_ACTION);
+  const blockedCommand = sandbox.check(BLOCKED_COMMAND_ACTION);
 
-  const directoryBoundary = sandbox.check(action('file.write', {
-    path: 'D:/workspace/secrets.env',
-    content: 'TOKEN=secret',
-  }));
-  const blockedCommand = sandbox.check(action('shell.exec', {
-    command: 'format C:',
-  }));
+  printSandboxEnforcement(
+    directoryBoundary.allowed,
+    directoryBoundary.reason,
+    blockedCommand.allowed,
+    blockedCommand.reason,
+  );
+}
 
+function printSandboxEnforcement(
+  directoryAllowed: boolean,
+  directoryReason: string | undefined,
+  commandAllowed: boolean,
+  commandReason: string | undefined,
+): void {
   console.log('Sandbox enforcement:');
-  console.log(`Sandbox directory boundary allowed: ${directoryBoundary.allowed}`);
-  console.log(`Sandbox directory boundary reason: ${directoryBoundary.reason}`);
-  console.log(`Sandbox blocked command allowed: ${blockedCommand.allowed}`);
-  console.log(`Sandbox command blacklist reason: ${blockedCommand.reason}`);
+  console.log(`Sandbox directory boundary allowed: ${directoryAllowed}`);
+  console.log(`Sandbox directory boundary reason: ${directoryReason}`);
+  console.log(`Sandbox blocked command allowed: ${commandAllowed}`);
+  console.log(`Sandbox command blacklist reason: ${commandReason}`);
 }
 
 async function demoHitlFlows(): Promise<void> {
@@ -76,10 +98,14 @@ async function demoHitlFlows(): Promise<void> {
   });
   const nonInteractiveResult = await guardrail.evaluate(action('shell.exec', { command: 'rm -rf *' }));
 
+  printHitlFlows(approved.status, rejected.status, nonInteractiveResult.source);
+}
+
+function printHitlFlows(approvedStatus: string, rejectedStatus: string, rejectionSource: string): void {
   console.log('HITL human-in-the-loop flow:');
-  console.log(`HITL approved decision: ${approved.status}`);
-  console.log(`HITL rejected decision: ${rejected.status}`);
-  console.log(`HITL guardrail rejection source: ${nonInteractiveResult.source}`);
+  console.log(`HITL approved decision: ${approvedStatus}`);
+  console.log(`HITL rejected decision: ${rejectedStatus}`);
+  console.log(`HITL guardrail rejection source: ${rejectionSource}`);
 }
 
 async function requestHitlApproval() {

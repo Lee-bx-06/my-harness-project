@@ -1638,3 +1638,27 @@
 - Human intervention:
   - Kept implementation scoped to T10.3 only.
   - Kept all advanced scenarios in memory; no filesystem writes or shell commands are executed.
+
+## 2026-08-06 - T10.3 Advanced Guardrail Demo Refactor Phase
+
+- Task: T10.3 demonstrate advanced guardrail dimensions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve advanced guardrail demo readability without changing observable behavior.
+- Files changed:
+  - `scripts/demo-guardrail-advanced.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted the demo title, policy rules, sandbox options, and representative actions into named constants.
+  - Split policy, sandbox, and HITL output into focused helper functions.
+  - Kept the same advanced guardrail coverage and output keywords required by the smoke test.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrailAdvanced.test.ts`
+  - `npx ts-node scripts/demo-guardrail-advanced.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 106 tests passed.
+- Human intervention:
+  - Kept the refactor local to `scripts/demo-guardrail-advanced.ts`.
+  - Did not introduce shared helpers beyond what this single demo script needed.
