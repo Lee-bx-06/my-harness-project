@@ -1610,3 +1610,31 @@
 - Human intervention:
   - Kept `scripts/demo-guardrail-advanced.ts` absent to preserve the Red phase.
   - Scoped the test to T10.3 only.
+
+## 2026-08-06 - T10.3 Advanced Guardrail Demo Green Phase
+
+- Task: T10.3 demonstrate advanced guardrail dimensions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum advanced guardrail demo script needed to satisfy the T10.3 Red smoke test and PLAN verification command.
+- Files changed:
+  - `scripts/demo-guardrail-advanced.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a deterministic advanced guardrail demo covering policy, sandbox, and HITL dimensions.
+  - Demonstrated policy evaluation with both allow and deny outcomes.
+  - Demonstrated sandbox directory-boundary enforcement for a path outside the allowed workspace.
+  - Demonstrated sandbox blocked-command/command-blacklist enforcement.
+  - Demonstrated HITL approval and rejection flows.
+  - Included a real `Guardrail` evaluation with non-interactive HITL rejection for a dangerous command.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrailAdvanced.test.ts`
+  - `npx ts-node scripts/demo-guardrail-advanced.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Focused advanced guardrail demo test passed.
+  - Full test suite result: 106 tests passed.
+- Human intervention:
+  - Kept implementation scoped to T10.3 only.
+  - Kept all advanced scenarios in memory; no filesystem writes or shell commands are executed.
