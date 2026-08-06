@@ -1506,3 +1506,29 @@
 - Human intervention:
   - Kept the refactor local to `scripts/demo-guardrail.ts`.
   - Did not introduce shared demo abstractions before T10.2/T10.3 establish repeated patterns.
+
+## 2026-08-06 - T10.2 Feedback Demo Red Phase
+
+- Task: T10.2 demonstrate the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected feedback demo behavior with a failing integration smoke test before implementation.
+- Files changed:
+  - `tests/integration/demo/feedback.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - `scripts/demo-feedback.ts` runs through `ts-node`.
+  - The demo output identifies the feedback loop.
+  - The demo shows an initial test failure.
+  - The demo shows parsed feedback or a failure category.
+  - The demo shows the Agent receiving feedback context.
+  - The demo shows a correction/fix and a passing test result.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/feedback.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - The focused feedback demo test failed as expected in the Red phase.
+  - Failure reason: `Cannot find module 'D:\my-harness-project\scripts\demo-feedback.ts'`.
+  - Type checking passed.
+- Human intervention:
+  - Kept `scripts/demo-feedback.ts` absent to preserve the Red phase.
+  - Scoped the test to T10.2 only; advanced guardrail demo remains for T10.3.
