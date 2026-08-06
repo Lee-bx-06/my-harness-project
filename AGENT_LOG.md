@@ -1584,3 +1584,29 @@
 - Human intervention:
   - Kept the refactor local to `scripts/demo-feedback.ts`.
   - Did not extract shared demo helpers until T10.3 introduces enough repeated structure to justify it.
+
+## 2026-08-06 - T10.3 Advanced Guardrail Demo Red Phase
+
+- Task: T10.3 demonstrate advanced guardrail dimensions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected advanced guardrail demo behavior with a failing integration smoke test before implementation.
+- Files changed:
+  - `tests/integration/demo/guardrailAdvanced.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - `scripts/demo-guardrail-advanced.ts` runs through `ts-node`.
+  - The demo output identifies the advanced guardrail demo.
+  - The demo shows policy evaluation with allow and deny outcomes.
+  - The demo shows sandbox directory-boundary enforcement.
+  - The demo shows sandbox blocked-command or command-blacklist enforcement.
+  - The demo shows HITL approval and rejection flows.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrailAdvanced.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - The focused advanced guardrail demo test failed as expected in the Red phase.
+  - Failure reason: `Cannot find module 'D:\my-harness-project\scripts\demo-guardrail-advanced.ts'`.
+  - Type checking passed.
+- Human intervention:
+  - Kept `scripts/demo-guardrail-advanced.ts` absent to preserve the Red phase.
+  - Scoped the test to T10.3 only.
