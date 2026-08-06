@@ -1374,3 +1374,33 @@
 - Human intervention:
   - Kept implementation absent to preserve the Red phase.
   - Scoped tests to the program builder and injected dependencies so the future implementation can avoid touching real credentials or launching a real agent in unit tests.
+
+## 2026-08-06 - T9.1 CLI Green Phase
+
+- Task: T9.1 implement CLI command-line interface.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum CLI implementation needed to satisfy the T9.1 red tests and PLAN verification commands.
+- Files changed:
+  - `src/cli/program.ts`
+  - `src/cli/index.ts`
+  - `bin/agent`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a Commander-based `createCliProgram` builder with injectable output streams, tool registry, and agent runner.
+  - Added `run`, `credential`, `config`, and `tools` command groups.
+  - Implemented `credential set/get/clear` help surface and placeholder actions.
+  - Implemented `tools` listing from an injected `ToolRegistry`.
+  - Implemented `run --instruction ...` command mode using an injected runner and a placeholder interactive-mode response.
+  - Added `src/cli/index.ts` and `bin/agent` so the built CLI can be invoked through the planned executable entry.
+- Verification commands:
+  - `npm run build`
+  - `npm run typecheck`
+  - `node bin/agent --help`
+  - `node bin/agent credential --help`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 103 tests passed.
+- Human intervention:
+  - Kept credential, config, and real agent startup behavior minimal; deeper persistence and runtime wiring remain outside this Green phase.
+  - Used dependency injection to keep CLI unit tests deterministic and avoid touching real credentials or launching a real Agent.
