@@ -1532,3 +1532,31 @@
 - Human intervention:
   - Kept `scripts/demo-feedback.ts` absent to preserve the Red phase.
   - Scoped the test to T10.2 only; advanced guardrail demo remains for T10.3.
+
+## 2026-08-06 - T10.2 Feedback Demo Green Phase
+
+- Task: T10.2 demonstrate the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum feedback demo script needed to satisfy the T10.2 Red smoke test and PLAN verification command.
+- Files changed:
+  - `scripts/demo-feedback.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a deterministic feedback-loop demo using fixed Jest-style failing test output.
+  - Parsed the failure with `TestValidator`.
+  - Classified the parsed failure with `FailureClassifier`.
+  - Appended prioritized feedback into Agent context with `FeedbackLoop`.
+  - Used `MockLLM` to produce a correction action after receiving feedback context.
+  - Printed the initial test failure, parsed feedback, Agent feedback context, correction action, and final passing test result.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/feedback.test.ts`
+  - `npx ts-node scripts/demo-feedback.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Focused feedback demo test passed.
+  - Full test suite result: 105 tests passed.
+- Human intervention:
+  - Kept implementation scoped to T10.2 only.
+  - Did not execute real filesystem changes; the correction action is deterministic demo output from `MockLLM`.
