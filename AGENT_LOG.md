@@ -1345,3 +1345,32 @@
 - Human intervention:
   - Kept the refactor limited to T6.1 schema readability and duplication reduction.
   - Did not add new behavior or broaden the schema surface.
+
+## 2026-08-06 - T9.1 CLI Red Phase
+
+- Task: T9.1 implement CLI command-line interface.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected CLI behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/cli/program.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for PLAN P9/T9.1.
+  - Complete only the failing test portion.
+  - Do not implement `src/cli/program.ts` or the executable `bin/agent` yet.
+- Expected behavior captured by tests:
+  - Export `createCliProgram` from `src/cli/program`.
+  - Top-level `agent --help` exposes the required command groups: `run`, `credential`, `config`, and `tools`.
+  - `agent credential --help` exposes credential management subcommands: `set`, `get`, and `clear`.
+  - `agent tools` lists registered tool names and descriptions.
+  - `agent run --instruction ...` passes the instruction to an injected agent runner and prints completion status.
+- Verification commands:
+  - `npm test -- tests/unit/cli/program.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/cli/program'`.
+  - The test command also executed the repository test glob; existing tests passed and the new CLI test file produced the single failure.
+- Human intervention:
+  - Kept implementation absent to preserve the Red phase.
+  - Scoped tests to the program builder and injected dependencies so the future implementation can avoid touching real credentials or launching a real agent in unit tests.
