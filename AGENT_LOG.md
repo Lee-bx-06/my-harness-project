@@ -1482,3 +1482,27 @@
 - Human intervention:
   - Kept implementation scoped to T10.1 only.
   - Did not add shared demo helpers until later demo tasks create real duplication.
+
+## 2026-08-06 - T10.1 Guardrail Demo Refactor Phase
+
+- Task: T10.1 demonstrate guardrail blocking dangerous actions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve demo readability without changing its observable behavior.
+- Files changed:
+  - `scripts/demo-guardrail.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted the dangerous command and demo instruction into named constants.
+  - Split agent creation, guardrail event lookup, summary printing, and denial assertion into focused helpers.
+  - Kept output text and guardrail behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrail.test.ts`
+  - `npx ts-node scripts/demo-guardrail.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 104 tests passed.
+- Human intervention:
+  - Kept the refactor local to `scripts/demo-guardrail.ts`.
+  - Did not introduce shared demo abstractions before T10.2/T10.3 establish repeated patterns.
