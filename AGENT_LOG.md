@@ -1430,3 +1430,28 @@
 - Human intervention:
   - Kept the refactor limited to CLI structure and dependency flow.
   - Did not change user-facing command semantics or add new features.
+
+## 2026-08-06 - T10.1 Guardrail Demo Red Phase
+
+- Task: T10.1 demonstrate guardrail blocking dangerous actions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected demo script behavior with a failing integration smoke test before implementation.
+- Files changed:
+  - `tests/integration/demo/guardrail.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - `scripts/demo-guardrail.ts` runs through `ts-node`.
+  - The demo output mentions the guardrail flow.
+  - The demo includes the dangerous `rm -rf /` action.
+  - The demo output shows the action was denied or blocked.
+  - The demo output includes decision context such as a reason, threat, or dangerous-action classification.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrail.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - The focused demo test failed as expected in the Red phase.
+  - Failure reason: `Cannot find module 'D:\my-harness-project\scripts\demo-guardrail.ts'`.
+  - Type checking passed.
+- Human intervention:
+  - Kept `scripts/demo-guardrail.ts` absent to preserve the Red phase.
+  - Scoped the test to T10.1 only; feedback and advanced guardrail demos remain for T10.2 and T10.3.
