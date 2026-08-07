@@ -1424,3 +1424,88 @@
 - Human intervention:
   - Kept the refactor limited to T6.1 schema readability and duplication reduction.
   - Did not add new behavior or broaden the schema surface.
+
+## 2026-08-06 - T9.1 CLI Red Phase
+
+- Task: T9.1 implement CLI command-line interface.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected CLI behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/cli/program.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for PLAN P9/T9.1.
+  - Complete only the failing test portion.
+  - Do not implement `src/cli/program.ts` or the executable `bin/agent` yet.
+- Expected behavior captured by tests:
+  - Export `createCliProgram` from `src/cli/program`.
+  - Top-level `agent --help` exposes the required command groups: `run`, `credential`, `config`, and `tools`.
+  - `agent credential --help` exposes credential management subcommands: `set`, `get`, and `clear`.
+  - `agent tools` lists registered tool names and descriptions.
+  - `agent run --instruction ...` passes the instruction to an injected agent runner and prints completion status.
+- Verification commands:
+  - `npm test -- tests/unit/cli/program.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/cli/program'`.
+  - The test command also executed the repository test glob; existing tests passed and the new CLI test file produced the single failure.
+- Human intervention:
+  - Kept implementation absent to preserve the Red phase.
+  - Scoped tests to the program builder and injected dependencies so the future implementation can avoid touching real credentials or launching a real agent in unit tests.
+
+## 2026-08-06 - T9.1 CLI Green Phase
+
+- Task: T9.1 implement CLI command-line interface.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum CLI implementation needed to satisfy the T9.1 red tests and PLAN verification commands.
+- Files changed:
+  - `src/cli/program.ts`
+  - `src/cli/index.ts`
+  - `bin/agent`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a Commander-based `createCliProgram` builder with injectable output streams, tool registry, and agent runner.
+  - Added `run`, `credential`, `config`, and `tools` command groups.
+  - Implemented `credential set/get/clear` help surface and placeholder actions.
+  - Implemented `tools` listing from an injected `ToolRegistry`.
+  - Implemented `run --instruction ...` command mode using an injected runner and a placeholder interactive-mode response.
+  - Added `src/cli/index.ts` and `bin/agent` so the built CLI can be invoked through the planned executable entry.
+- Verification commands:
+  - `npm run build`
+  - `npm run typecheck`
+  - `node bin/agent --help`
+  - `node bin/agent credential --help`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 103 tests passed.
+- Human intervention:
+  - Kept credential, config, and real agent startup behavior minimal; deeper persistence and runtime wiring remain outside this Green phase.
+  - Used dependency injection to keep CLI unit tests deterministic and avoid touching real credentials or launching a real Agent.
+
+## 2026-08-06 - T9.1 CLI Refactor Phase
+
+- Task: T9.1 implement CLI command-line interface.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve the CLI implementation structure without changing behavior.
+- Files changed:
+  - `src/cli/program.ts`
+  - `src/cli/index.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted reusable CLI stream resolution and command output configuration helpers.
+  - Applied the same output wiring to subcommands so help and command actions share one path.
+  - Made `main` accept an injected program instance, keeping startup separate from program construction.
+  - Left command names, help text, and runtime behavior unchanged.
+- Verification commands:
+  - `npm run typecheck`
+  - `npm test -- tests/unit/cli/program.test.ts`
+  - `node bin/agent --help`
+  - `npm run build`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 103 tests passed.
+- Human intervention:
+  - Kept the refactor limited to CLI structure and dependency flow.
+  - Did not change user-facing command semantics or add new features.

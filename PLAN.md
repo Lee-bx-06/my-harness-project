@@ -692,6 +692,11 @@ interface Message {
 - 运行 `./bin/agent --help` 验证帮助信息
 - 运行 `./bin/agent credential --help` 验证凭据命令
 
+**完成状态**：
+- Status: completed through TDD Red, Green, and Refactor phases.
+- Commit hashes: `b2adc98`, `942dc9d`, `bcdd5c7`.
+- Verification: `npm run build`, `npm run typecheck`, `node bin/agent --help`, `node bin/agent credential --help`, and `npm test` pass.
+
 ---
 
 ## P10：机制演示
@@ -847,3 +852,9 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/agent/*.test.ts` and `tests/integration/agent/mainLoop.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hashes: `8cb4458`, `19584c8`, `1ade07d`, `feeeac7`, `7568323`, `177c729`, `133123c`, `944136a`, `2f78fc7`.
+
+- P9 CLI entry: completed.
+  - T9.1 CLI command-line interface: completed in `src/cli/program.ts`, `src/cli/index.ts`, and `bin/agent`.
+  - Tests: completed in `tests/unit/cli/program.test.ts`.
+  - Verification: `npm run build`, `npm run typecheck`, `node bin/agent --help`, `node bin/agent credential --help`, and `npm test` pass.
+  - Commit hashes: `b2adc98`, `942dc9d`, `bcdd5c7`.
