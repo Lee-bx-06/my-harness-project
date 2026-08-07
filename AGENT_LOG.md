@@ -1,5 +1,84 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T6.2 Config Loader Refactor Phase
+
+- Task: T6.2 refactor configuration loading and merging after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `ConfigLoader` readability without changing behavior.
+- Files changed:
+  - `src/config/loader.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted config file encoding and supported extension constants.
+  - Replaced repeated environment override calls with a declarative override table.
+  - Split YAML parsing into helpers for comments, sections, array items, and key/value entries.
+  - Kept JSON/YAML loading, deep merge, environment override order, and schema validation behavior unchanged.
+  - Preserved the public `ConfigLoader` API and constructor options.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/loader.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 89 tests passed.
+- Human intervention:
+  - Kept the refactor scoped to T6.2 code organization only.
+  - Did not add new behavior or external YAML dependencies.
+
+## 2026-08-03 - T6.2 Config Loader Green Phase
+
+- Task: T6.2 implement configuration loading and merging.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T6.2 config loader tests pass.
+- Files changed:
+  - `src/config/loader.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `ConfigLoader` with injected defaults and environment values.
+  - Loaded JSON configuration files.
+  - Added a minimal YAML parser for the project's object, scalar, and string-array config shape.
+  - Deep merged partial user config over defaults.
+  - Applied environment variable overrides after file/default merging.
+  - Validated the final merged config with `configSchema`.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/loader.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 89 tests passed.
+- Human intervention:
+  - Kept implementation scoped to the T6.2 red tests.
+  - Did not add an external YAML dependency in this minimum Green phase.
+
+## 2026-08-03 - T6.2 Config Loader Red Phase
+
+- Task: T6.2 implement configuration loading and merging.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add only the failing tests for `ConfigLoader` before implementation.
+- Files changed:
+  - `tests/unit/config/loader.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Backfill the missing P6 T6.2 work using TDD.
+  - Add only the failing test portion for T6.2.
+  - Do not implement `src/config/loader.ts` yet.
+- Expected behavior captured by tests:
+  - Export a `ConfigLoader` class from `src/config/loader`.
+  - Load and validate JSON configuration files.
+  - Load YAML configuration files.
+  - Deep merge partial user configuration with defaults.
+  - Apply environment variable overrides after file/default merging.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/config/loader.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/config/loader'`.
+- Human intervention:
+  - Used temporary config files so tests do not touch project or user configuration.
+  - Injected environment values through loader options to avoid mutating `process.env`.
+  - Kept implementation absent to preserve the Red phase.
+
 ## 2026-08-01 - T5.2 Memory Retriever Refactor Phase
 
 - Task: T5.2 refactor the memory retriever after Green.
@@ -870,3 +949,78 @@
 - Human intervention:
   - Kept security policy concerns scoped out of T2.2 except basic root path resolution.
   - Did not implement shell, test, or git tools in this phase.
+
+## 2026-08-02 - T6.1 Config Schema Red Phase
+
+- Task: T6.1 define configuration schema.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected config schema behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/config/schema.test.ts`
+- Key prompt/context:
+  - Follow TDD for P6 configuration management.
+  - Add only the failing test portion for T6.1.
+  - Do not implement `src/config/schema.ts` yet.
+- Expected behavior captured by tests:
+  - Export `configSchema` and `Config` from `src/config/schema`.
+  - Accept a complete harness configuration with `llm`, `guardrail`, `feedback`, and `memory` sections.
+  - Require all top-level configuration sections.
+  - Validate numeric limits for LLM, feedback, and memory settings.
+  - Reject unknown configuration keys so plaintext secrets cannot be silently added.
+- Verification command:
+  - `npm test -- tests/unit/config/schema.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/config/schema'`.
+  - The command also executed the existing test glob; 80 existing tests passed and the new schema test file produced the single failure.
+- Human intervention:
+  - Kept the implementation absent to preserve the Red phase.
+  - Scoped the tests to T6.1 schema validation only; config file loading and default merging remain for T6.2.
+
+## 2026-08-02 - T6.1 Config Schema Green Phase
+
+- Task: T6.1 define configuration schema.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum schema implementation needed to make the T6.1 config schema tests pass.
+- Files changed:
+  - `src/config/schema.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added Zod schemas for LLM, guardrail, feedback, memory, and top-level harness config.
+  - Exported `configSchema` plus inferred `Config` and section-specific config types.
+  - Used strict objects to reject unknown keys.
+  - Enforced minimum numeric limits for token count, retries, and memory history.
+  - Constrained LLM temperature to the accepted `0` to `2` range.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/schema.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 85 tests passed.
+- Human intervention:
+  - Kept implementation scoped to schema definition only.
+  - Did not implement config loading, default values, file format parsing, or merge behavior; those remain for T6.2.
+
+## 2026-08-02 - T6.1 Config Schema Refactor Phase
+
+- Task: T6.1 define configuration schema.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve schema maintainability without changing validated behavior.
+- Files changed:
+  - `src/config/schema.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted shared scalar validators for non-empty strings, non-empty string lists, positive integers, and non-negative integers.
+  - Reused the shared validators across LLM, guardrail, feedback, and memory schemas.
+  - Kept all public exports and parsing behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/config/schema.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 85 tests passed.
+- Human intervention:
+  - Kept the refactor limited to T6.1 schema readability and duplication reduction.
+  - Did not add new behavior or broaden the schema surface.
