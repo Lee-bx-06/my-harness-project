@@ -786,6 +786,11 @@ interface Message {
 - 查看 CI 执行结果
 - 确认 `unit-test` job 通过
 
+**Completion status**:
+- Status: completed with configuration-driven validation.
+- Workflow: `.github/workflows/ci.yml`.
+- Verification: local `npm run typecheck`, `npm test`, and `npm run build` pass; remote GitHub Actions result must be confirmed after push.
+- Commit hashes: `cfac802`, `deb8f56`.
 ---
 
 ## 依赖关系图
@@ -881,3 +886,8 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/integration/demo/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass; demo scripts also pass the PLAN smoke commands.
   - Commit hashes: `b9b746d`, `919c608`, `366bd34`, `41ef761`, `db9d4b9`, `f2da78d`, `37f61dc`, `da8d257`, `c12e579`.
+- P11 CI/CD configuration: completed.
+  - T11.1 GitHub Actions CI: completed in `.github/workflows/ci.yml`.
+  - Test runner: updated in `scripts/run-tests.cjs` for cross-platform CI compatibility.
+  - Verification: local `npm run typecheck`, `npm test`, and `npm run build` pass; GitHub Actions passes on `feature/ci`.
+  - Commit hashes: `cfac802`, `deb8f56`.

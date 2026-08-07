@@ -1,5 +1,31 @@
 # AGENT_LOG.md
 
+## 2026-08-07 - T11.1 GitHub Actions CI
+
+- Task: T11.1 configure GitHub Actions CI.
+- Workflow stage: configuration-driven validation.
+- Goal: add a CI pipeline that installs dependencies and runs the same verification commands used locally.
+- Files changed:
+  - `.github/workflows/ci.yml`
+  - `PLAN.md`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a `unit-test` job on `ubuntu-latest`.
+  - Configured Node.js 20 with npm dependency caching.
+  - Runs `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`.
+  - Triggers on pushes to `main` and `feature/**`, and on pull requests targeting `main`.
+  - Added `scripts/run-tests.cjs` so `npm test` expands test files consistently on Windows and Linux runners.
+- Verification commands:
+  - `npm run typecheck`
+  - `npm test`
+  - `npm run build`
+- Verification result:
+  - Local verification passed.
+  - Full test suite result: 110 tests passed.
+  - Remote GitHub Actions verification must be confirmed after pushing the branch.
+- Human intervention:
+  - Did not force a unit-test Red phase for CI YAML; the real acceptance signal is the GitHub Actions run.
+
 ## 2026-08-05 - T8.3 Agent Main Loop Refactor Phase
 
 - Task: T8.3 implement the Agent main loop.
