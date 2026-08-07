@@ -14,6 +14,7 @@
   - Configured Node.js 20 with npm dependency caching.
   - Runs `npm ci`, `npm run typecheck`, `npm test`, and `npm run build`.
   - Triggers on pushes to `main` and `feature/**`, and on pull requests targeting `main`.
+  - Added `scripts/run-tests.cjs` so `npm test` expands test files consistently on Windows and Linux runners.
 - Verification commands:
   - `npm run typecheck`
   - `npm test`
