@@ -786,6 +786,10 @@ interface Message {
 - 查看 CI 执行结果
 - 确认 `unit-test` job 通过
 
+**Completion status**:
+- Status: completed with configuration-driven validation.
+- Workflow: `.github/workflows/ci.yml`.
+- Verification: local `npm run typecheck`, `npm test`, and `npm run build` pass; remote GitHub Actions result must be confirmed after push.
 ---
 
 ## 依赖关系图
