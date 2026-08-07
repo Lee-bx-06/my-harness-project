@@ -388,6 +388,11 @@ interface Message {
 - 测试解析失败测试输出
 - 测试提取错误位置和类型
 
+**提交记录**：
+- Red: `cdfc59b` - test: add failing tests for feedback validator
+- Green: `32cf552` - feat: implement feedback validator
+- Refactor: `ea88531` - refactor: clarify feedback validator parsing flow
+
 ### T4.2：实现失败分类器
 
 **目标**：实现失败类型分类器
@@ -406,6 +411,11 @@ interface Message {
 - 测试不同类型错误的分类
 - 测试修复建议生成
 
+**提交记录**：
+- Red: `95f24bf` - test: add failing tests for classifier
+- Green: `ebe2cd1` - feat: implement classifier
+- Refactor: `0b0bf69` - refactor: T4.2
+
 ### T4.3：实现反馈回灌逻辑
 
 **目标**：实现反馈结果回灌到上下文的逻辑
@@ -423,6 +433,11 @@ interface Message {
 - 编写单元测试：`tests/unit/feedback/loop.test.ts`
 - 测试反馈追加到上下文
 - 测试反馈信息量控制
+
+**提交记录**：
+- Red: `20d2119` - test: add failing test for loop
+- Green: `fe7d4e1` - feat: T4.3
+- Refactor: `3634cef` - refactor: T4.3
 
 ---
 
@@ -749,3 +764,11 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/llm/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hash: `5ab799e74b4e3cd1f4ba45bd8b4bd966be738944`.
+
+- P4 feedback loop: completed.
+  - T4.1 test result validator: completed in `src/feedback/validator.ts`.
+  - T4.2 failure classifier: completed in `src/feedback/classifier.ts`.
+  - T4.3 feedback loop: completed in `src/feedback/loop.ts`.
+  - Tests: completed in `tests/unit/feedback/*.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass.
+  - Commit hashes: `cdfc59b`, `32cf552`, `ea88531`, `95f24bf`, `ebe2cd1`, `0b0bf69`, `20d2119`, `fe7d4e1`, `3634cef`.

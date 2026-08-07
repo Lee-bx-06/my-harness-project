@@ -1,5 +1,189 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T4.3 Feedback Loop Refactor Phase
+
+- Task: T4.3 refactor the feedback loop after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `FeedbackLoop` structure without changing behavior.
+- Files changed:
+  - `src/feedback/loop.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Split context assembly into focused helper methods.
+  - Isolated priority sorting, entry limiting, and message mapping.
+  - Kept the public API and output unchanged.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/loop.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T4.3 TDD refactor step.
+
+## 2026-08-01 - T4.3 Feedback Loop Green Phase
+
+- Task: T4.3 implement the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T4.3 feedback loop tests pass.
+- Files changed:
+  - `src/feedback/loop.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `FeedbackLoop` with `append()`, `apply()`, and `run()` entry points.
+  - Sorted feedback entries by priority before appending them to the context.
+  - Enforced `maxEntries` to cap feedback volume.
+  - Kept the implementation scoped to the current feedback loop tests.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/loop.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T4.3 Green phase with the smallest implementation needed for the current red tests.
+
+## 2026-08-01 - T4.3 Feedback Loop Red Phase
+
+- Task: T4.3 implement the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `FeedbackLoop` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/feedback/loop.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Append prioritized feedback to the end of the LLM context.
+  - Preserve existing context messages.
+  - Limit the amount of feedback included when a cap is configured.
+- Verification command:
+  - `npm test -- tests/unit/feedback/loop.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/feedback/loop'`.
+- Human intervention:
+  - Kept `src/feedback/loop.ts` absent to preserve the Red phase requested for T4.3.
+
+## 2026-08-01 - T4.2 Failure Classifier Refactor Phase
+
+- Task: T4.2 refactor the failure classifier after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `FailureClassifier` structure without changing behavior.
+- Files changed:
+  - `src/feedback/classifier.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Consolidated category matching into an ordered rule table.
+  - Extracted result construction into a small helper.
+  - Kept the public API and classification output unchanged.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/classifier.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T4.2 TDD refactor step.
+
+## 2026-08-01 - T4.2 Failure Classifier Green Phase
+
+- Task: T4.2 implement the failure classifier.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T4.2 failure classifier tests pass.
+- Files changed:
+  - `src/feedback/classifier.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `FailureClassifier` with `classify()` and `analyze()` entry points.
+  - Classified syntax, type, logic, performance, and lint failures with simple pattern matching.
+  - Returned a structured suggestion string for each category.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/classifier.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T4.2 Green phase with the smallest implementation needed for the current red tests.
+
+## 2026-08-01 - T4.2 Failure Classifier Red Phase
+
+- Task: T4.2 implement the failure classifier.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `FailureClassifier` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/feedback/classifier.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Categorize syntax, type, logic, performance, and lint failures.
+  - Return a structured suggestion for each failure category.
+- Verification command:
+  - `npm test -- tests/unit/feedback/classifier.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/feedback/classifier'`.
+- Human intervention:
+  - Kept `src/feedback/classifier.ts` absent to preserve the Red phase requested for T4.2.
+
+## 2026-08-01 - T4.1 Feedback Validator Refactor Phase
+
+- Task: T4.1 refactor the feedback validator after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `TestValidator` structure without changing behavior.
+- Files changed:
+  - `src/feedback/validator.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Split the parser into explicit framework-marker detection and failure creation helpers.
+  - Renamed the main parsing path to `parseOutput` for clearer intent.
+  - Kept the public API and parsed feedback shape unchanged.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/validator.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T4.1 TDD refactor step.
+
+## 2026-08-01 - T4.1 Feedback Validator Green Phase
+
+- Task: T4.1 implement the test result validator.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T4.1 feedback validator tests pass.
+- Files changed:
+  - `src/feedback/validator.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `TestValidator` with both `parse()` and `validate()` entry points.
+  - Parsed Jest and Mocha failure blocks into structured feedback items.
+  - Extracted failure category, message, and source location from stack/output lines.
+  - Kept the implementation narrow to the currently failing tests and SPEC feedback shape.
+- Verification commands:
+  - `npm test -- tests/unit/feedback/validator.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T4.1 Green phase with the smallest implementation needed for the current red tests.
+
+## 2026-08-01 - T4.1 Feedback Validator Red Phase
+
+- Task: T4.1 implement the test result validator.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `TestValidator` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/feedback/validator.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Parse Jest failure output into structured feedback entries.
+  - Parse Mocha failure output into structured feedback entries.
+  - Extract failure type, message, and location details.
+- Verification command:
+  - `npm test -- tests/unit/feedback/validator.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/feedback/validator'`.
+- Human intervention:
+  - Kept `src/feedback/validator.ts` absent to preserve the Red phase requested for T4.1.
+
 ## 2026-07-31 - T3.5 Guardrail Entry Refactor Phase
 
 - Task: T3.5 refactor the guardrail main entry point after Green.
