@@ -717,6 +717,11 @@ interface Message {
 - 运行 `npx ts-node scripts/demo-guardrail.ts`
 - 验证危险动作被正确拦截
 
+**完成状态**：
+- Status: completed through TDD Red, Green, and Refactor phases.
+- Commit hashes: `b9b746d`, `919c608`, `366bd34`.
+- Verification: `node --test --require ts-node/register tests/integration/demo/guardrail.test.ts`, `npx ts-node scripts/demo-guardrail.ts`, `npm run typecheck`, and `npm test` pass.
+
 ### T10.2：演示反馈闭环
 
 **目标**：确定性复现反馈闭环使 Agent 自我修正的行为
@@ -733,6 +738,11 @@ interface Message {
 - 运行 `npx ts-node scripts/demo-feedback.ts`
 - 验证反馈闭环正常工作
 
+**完成状态**：
+- Status: completed through TDD Red, Green, and Refactor phases.
+- Commit hashes: `41ef761`, `db9d4b9`, `f2da78d`.
+- Verification: `node --test --require ts-node/register tests/integration/demo/feedback.test.ts`, `npx ts-node scripts/demo-feedback.ts`, `npm run typecheck`, and `npm test` pass.
+
 ### T10.3：演示重点维度（治理护栏）
 
 **目标**：演示治理护栏的高级功能
@@ -748,6 +758,11 @@ interface Message {
 **验证步骤**：
 - 运行 `npx ts-node scripts/demo-guardrail-advanced.ts`
 - 验证治理护栏的高级功能
+
+**完成状态**：
+- Status: completed through TDD Red, Green, and Refactor phases.
+- Commit hashes: `37f61dc`, `da8d257`, `c12e579`.
+- Verification: `node --test --require ts-node/register tests/integration/demo/guardrailAdvanced.test.ts`, `npx ts-node scripts/demo-guardrail-advanced.ts`, `npm run typecheck`, and `npm test` pass.
 
 ---
 
@@ -858,3 +873,11 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/cli/program.test.ts`.
   - Verification: `npm run build`, `npm run typecheck`, `node bin/agent --help`, `node bin/agent credential --help`, and `npm test` pass.
   - Commit hashes: `b2adc98`, `942dc9d`, `bcdd5c7`.
+
+- P10 mechanism demos: completed.
+  - T10.1 guardrail demo: completed in `scripts/demo-guardrail.ts`.
+  - T10.2 feedback demo: completed in `scripts/demo-feedback.ts`.
+  - T10.3 advanced guardrail demo: completed in `scripts/demo-guardrail-advanced.ts`.
+  - Tests: completed in `tests/integration/demo/*.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass; demo scripts also pass the PLAN smoke commands.
+  - Commit hashes: `b9b746d`, `919c608`, `366bd34`, `41ef761`, `db9d4b9`, `f2da78d`, `37f61dc`, `da8d257`, `c12e579`.

@@ -1509,3 +1509,235 @@
 - Human intervention:
   - Kept the refactor limited to CLI structure and dependency flow.
   - Did not change user-facing command semantics or add new features.
+
+## 2026-08-06 - T10.1 Guardrail Demo Red Phase
+
+- Task: T10.1 demonstrate guardrail blocking dangerous actions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected demo script behavior with a failing integration smoke test before implementation.
+- Files changed:
+  - `tests/integration/demo/guardrail.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - `scripts/demo-guardrail.ts` runs through `ts-node`.
+  - The demo output mentions the guardrail flow.
+  - The demo includes the dangerous `rm -rf /` action.
+  - The demo output shows the action was denied or blocked.
+  - The demo output includes decision context such as a reason, threat, or dangerous-action classification.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrail.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - The focused demo test failed as expected in the Red phase.
+  - Failure reason: `Cannot find module 'D:\my-harness-project\scripts\demo-guardrail.ts'`.
+  - Type checking passed.
+- Human intervention:
+  - Kept `scripts/demo-guardrail.ts` absent to preserve the Red phase.
+  - Scoped the test to T10.1 only; feedback and advanced guardrail demos remain for T10.2 and T10.3.
+
+## 2026-08-06 - T10.1 Guardrail Demo Green Phase
+
+- Task: T10.1 demonstrate guardrail blocking dangerous actions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum demo script needed to satisfy the T10.1 Red smoke test and PLAN verification command.
+- Files changed:
+  - `scripts/demo-guardrail.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a deterministic demo using `MockLLM` to emit a dangerous `shell.exec` action with `rm -rf /`.
+  - Ran the real `Agent` loop with a real `Guardrail` instance.
+  - Added a demo-scoped policy rule that denies the exact destructive command before any tool execution.
+  - Printed the dangerous action, guardrail decision, source, reason, threat count, and stop reason.
+  - Kept the tool registry empty so a missed guardrail denial would fail instead of executing anything.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrail.test.ts`
+  - `npx ts-node scripts/demo-guardrail.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Focused demo test passed.
+  - Full test suite result: 104 tests passed.
+- Human intervention:
+  - Kept implementation scoped to T10.1 only.
+  - Did not add shared demo helpers until later demo tasks create real duplication.
+
+## 2026-08-06 - T10.1 Guardrail Demo Refactor Phase
+
+- Task: T10.1 demonstrate guardrail blocking dangerous actions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve demo readability without changing its observable behavior.
+- Files changed:
+  - `scripts/demo-guardrail.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted the dangerous command and demo instruction into named constants.
+  - Split agent creation, guardrail event lookup, summary printing, and denial assertion into focused helpers.
+  - Kept output text and guardrail behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrail.test.ts`
+  - `npx ts-node scripts/demo-guardrail.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 104 tests passed.
+- Human intervention:
+  - Kept the refactor local to `scripts/demo-guardrail.ts`.
+  - Did not introduce shared demo abstractions before T10.2/T10.3 establish repeated patterns.
+
+## 2026-08-06 - T10.2 Feedback Demo Red Phase
+
+- Task: T10.2 demonstrate the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected feedback demo behavior with a failing integration smoke test before implementation.
+- Files changed:
+  - `tests/integration/demo/feedback.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - `scripts/demo-feedback.ts` runs through `ts-node`.
+  - The demo output identifies the feedback loop.
+  - The demo shows an initial test failure.
+  - The demo shows parsed feedback or a failure category.
+  - The demo shows the Agent receiving feedback context.
+  - The demo shows a correction/fix and a passing test result.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/feedback.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - The focused feedback demo test failed as expected in the Red phase.
+  - Failure reason: `Cannot find module 'D:\my-harness-project\scripts\demo-feedback.ts'`.
+  - Type checking passed.
+- Human intervention:
+  - Kept `scripts/demo-feedback.ts` absent to preserve the Red phase.
+  - Scoped the test to T10.2 only; advanced guardrail demo remains for T10.3.
+
+## 2026-08-06 - T10.2 Feedback Demo Green Phase
+
+- Task: T10.2 demonstrate the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum feedback demo script needed to satisfy the T10.2 Red smoke test and PLAN verification command.
+- Files changed:
+  - `scripts/demo-feedback.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a deterministic feedback-loop demo using fixed Jest-style failing test output.
+  - Parsed the failure with `TestValidator`.
+  - Classified the parsed failure with `FailureClassifier`.
+  - Appended prioritized feedback into Agent context with `FeedbackLoop`.
+  - Used `MockLLM` to produce a correction action after receiving feedback context.
+  - Printed the initial test failure, parsed feedback, Agent feedback context, correction action, and final passing test result.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/feedback.test.ts`
+  - `npx ts-node scripts/demo-feedback.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Focused feedback demo test passed.
+  - Full test suite result: 105 tests passed.
+- Human intervention:
+  - Kept implementation scoped to T10.2 only.
+  - Did not execute real filesystem changes; the correction action is deterministic demo output from `MockLLM`.
+
+## 2026-08-06 - T10.2 Feedback Demo Refactor Phase
+
+- Task: T10.2 demonstrate the feedback loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve feedback demo readability without changing observable behavior.
+- Files changed:
+  - `scripts/demo-feedback.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted the demo title, base context, and test output strings into named constants.
+  - Split initial failure output, parsed feedback output, feedback context output, correction output, and success output into focused helpers.
+  - Kept the deterministic feedback parsing, classification, feedback context, correction action, and final passing output unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/feedback.test.ts`
+  - `npx ts-node scripts/demo-feedback.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 105 tests passed.
+- Human intervention:
+  - Kept the refactor local to `scripts/demo-feedback.ts`.
+  - Did not extract shared demo helpers until T10.3 introduces enough repeated structure to justify it.
+
+## 2026-08-06 - T10.3 Advanced Guardrail Demo Red Phase
+
+- Task: T10.3 demonstrate advanced guardrail dimensions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected advanced guardrail demo behavior with a failing integration smoke test before implementation.
+- Files changed:
+  - `tests/integration/demo/guardrailAdvanced.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - `scripts/demo-guardrail-advanced.ts` runs through `ts-node`.
+  - The demo output identifies the advanced guardrail demo.
+  - The demo shows policy evaluation with allow and deny outcomes.
+  - The demo shows sandbox directory-boundary enforcement.
+  - The demo shows sandbox blocked-command or command-blacklist enforcement.
+  - The demo shows HITL approval and rejection flows.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrailAdvanced.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - The focused advanced guardrail demo test failed as expected in the Red phase.
+  - Failure reason: `Cannot find module 'D:\my-harness-project\scripts\demo-guardrail-advanced.ts'`.
+  - Type checking passed.
+- Human intervention:
+  - Kept `scripts/demo-guardrail-advanced.ts` absent to preserve the Red phase.
+  - Scoped the test to T10.3 only.
+
+## 2026-08-06 - T10.3 Advanced Guardrail Demo Green Phase
+
+- Task: T10.3 demonstrate advanced guardrail dimensions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum advanced guardrail demo script needed to satisfy the T10.3 Red smoke test and PLAN verification command.
+- Files changed:
+  - `scripts/demo-guardrail-advanced.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added a deterministic advanced guardrail demo covering policy, sandbox, and HITL dimensions.
+  - Demonstrated policy evaluation with both allow and deny outcomes.
+  - Demonstrated sandbox directory-boundary enforcement for a path outside the allowed workspace.
+  - Demonstrated sandbox blocked-command/command-blacklist enforcement.
+  - Demonstrated HITL approval and rejection flows.
+  - Included a real `Guardrail` evaluation with non-interactive HITL rejection for a dangerous command.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrailAdvanced.test.ts`
+  - `npx ts-node scripts/demo-guardrail-advanced.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Focused advanced guardrail demo test passed.
+  - Full test suite result: 106 tests passed.
+- Human intervention:
+  - Kept implementation scoped to T10.3 only.
+  - Kept all advanced scenarios in memory; no filesystem writes or shell commands are executed.
+
+## 2026-08-06 - T10.3 Advanced Guardrail Demo Refactor Phase
+
+- Task: T10.3 demonstrate advanced guardrail dimensions.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve advanced guardrail demo readability without changing observable behavior.
+- Files changed:
+  - `scripts/demo-guardrail-advanced.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted the demo title, policy rules, sandbox options, and representative actions into named constants.
+  - Split policy, sandbox, and HITL output into focused helper functions.
+  - Kept the same advanced guardrail coverage and output keywords required by the smoke test.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/demo/guardrailAdvanced.test.ts`
+  - `npx ts-node scripts/demo-guardrail-advanced.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result remained 106 tests passed.
+- Human intervention:
+  - Kept the refactor local to `scripts/demo-guardrail-advanced.ts`.
+  - Did not introduce shared helpers beyond what this single demo script needed.
