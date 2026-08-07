@@ -534,6 +534,11 @@ interface Message {
 - 测试配置合并
 - 测试环境变量覆盖
 
+**Commit records**:
+- Red: `7a11e1b` - test: add failing tests for loader
+- Green: `3b20271` - feat: implement loader
+- Refactor: `483262e` - refactor: T6.2
+
 ---
 
 ## P7：凭据安全
