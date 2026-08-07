@@ -789,8 +789,8 @@ interface Message {
 **Completion status**:
 - Status: completed with configuration-driven validation.
 - Workflow: `.github/workflows/ci.yml`.
-- Verification: local `npm run typecheck`, `npm test`, and `npm run build` pass; remote GitHub Actions result must be confirmed after push.
-- Commit hashes: `cfac802`, `deb8f56`.
+- Verification: local `npm run typecheck`, `npm test`, and `npm run build` pass; GitHub Actions passes on `main`.
+- Commit hashes: `cfac802`, `deb8f56`, `e2d0fa6`, `ecac404`.
 ---
 
 ## 依赖关系图
@@ -889,5 +889,5 @@ P3, P4 ──→ P10
 - P11 CI/CD configuration: completed.
   - T11.1 GitHub Actions CI: completed in `.github/workflows/ci.yml`.
   - Test runner: updated in `scripts/run-tests.cjs` for cross-platform CI compatibility.
-  - Verification: local `npm run typecheck`, `npm test`, and `npm run build` pass; GitHub Actions passes on `feature/ci`.
-  - Commit hashes: `cfac802`, `deb8f56`.
+  - Verification: local `npm run typecheck`, `npm test`, and `npm run build` pass; GitHub Actions passes on `main`.
+  - Commit hashes: `cfac802`, `deb8f56`, `e2d0fa6`, `ecac404`.
