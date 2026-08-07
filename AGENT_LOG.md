@@ -1,5 +1,202 @@
 # AGENT_LOG.md
 
+## 2026-08-05 - T8.3 Agent Main Loop Refactor Phase
+
+- Task: T8.3 implement the Agent main loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `Agent` main loop readability without changing behavior.
+- Files changed:
+  - `src/agent/mainLoop.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted initial loop state creation from `run`.
+  - Split stop-condition handling, LLM action generation, finish handling, guardrail handling, and tool execution into focused helpers.
+  - Kept public methods, event names, stop reasons, result shape, and context feedback behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/agent/mainLoop.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 102 tests passed.
+- Human intervention:
+  - Kept the refactor limited to internal loop organization.
+
+## 2026-08-05 - T8.3 Agent Main Loop Green Phase
+
+- Task: T8.3 implement the Agent main loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T8.3 main loop integration tests pass.
+- Files changed:
+  - `src/agent/mainLoop.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `Agent` with `run`, `execute`, and `start` aliases.
+  - Orchestrated context building, LLM action generation, guardrail evaluation, tool dispatch, tool-result feedback, event callbacks, and stop condition checks.
+  - Treated `finish` as a completed run and guardrail denial as a stopped run without tool execution.
+  - Returned run metadata including completion state, iteration count, actions, tool results, messages, and stop reason.
+- Verification commands:
+  - `node --test --require ts-node/register tests/integration/agent/mainLoop.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 102 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the minimum needed for T8.3 integration coverage.
+
+## 2026-08-05 - T8.3 Agent Main Loop Red Phase
+
+- Task: T8.3 implement the Agent main loop.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `Agent` orchestration behavior with failing integration tests before implementation.
+- Files changed:
+  - `tests/integration/agent/mainLoop.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Run a guarded tool action, execute the tool, feed the result into the next LLM turn, and emit action/tool events.
+  - Continue through multiple tool iterations until the LLM returns a finish action.
+  - Stop without executing a tool when guardrail denies an action.
+- Verification command:
+  - `node --test --require ts-node/register tests/integration/agent/mainLoop.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/agent/mainLoop' or its corresponding type declarations.`
+- Human intervention:
+  - Kept `src/agent/mainLoop.ts` absent to preserve the Red phase requested for T8.3.
+
+## 2026-08-05 - T8.2 Stop Condition Refactor Phase
+
+- Task: T8.2 implement stop condition evaluation.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `StopCondition` readability without changing behavior.
+- Files changed:
+  - `src/agent/stopCondition.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Replaced the sequential `evaluate` conditionals with ordered stop rules.
+  - Extracted user abort and task completion checks into rule helpers.
+  - Kept public methods, stop order, result shape, and messages unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/stopCondition.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 99 tests passed.
+- Human intervention:
+  - Kept the refactor limited to rule organization and readability.
+
+## 2026-08-05 - T8.2 Stop Condition Green Phase
+
+- Task: T8.2 implement stop condition evaluation.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T8.2 stop condition tests pass.
+- Files changed:
+  - `src/agent/stopCondition.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `StopCondition` with `evaluate`, `shouldStop`, and `check` aliases.
+  - Supported stop decisions for user abort, task completion, maximum iterations, and consecutive failures.
+  - Returned `{ shouldStop: false }` when no configured stop condition is met.
+  - Exported stop condition state, result, reason, and options types for main loop integration.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/stopCondition.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 99 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the minimum needed for T8.2.
+
+## 2026-08-05 - T8.2 Stop Condition Red Phase
+
+- Task: T8.2 implement stop condition evaluation.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `StopCondition` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/agent/stopCondition.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Continue while no configured stop condition is met.
+  - Stop at or beyond the configured maximum iteration count.
+  - Stop when the user aborts the run.
+  - Stop when the task is marked complete.
+  - Stop after the configured number of consecutive failures.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/agent/stopCondition.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/agent/stopCondition' or its corresponding type declarations.`
+- Human intervention:
+  - Kept `src/agent/stopCondition.ts` absent to preserve the Red phase requested for T8.2.
+
+## 2026-08-05 - T8.1 Context Manager Refactor Phase
+
+- Task: T8.1 implement the context manager.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `ContextManager` readability without changing behavior.
+- Files changed:
+  - `src/agent/context.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted message appending and summary insertion into top-level helpers.
+  - Moved tool, feedback, and message cloning helpers out of the class body.
+  - Kept public methods, output shape, and persistence behavior unchanged.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/context.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 94 tests passed.
+- Human intervention:
+  - Kept the refactor limited to readability and helper extraction.
+
+## 2026-08-05 - T8.1 Context Manager Green Phase
+
+- Task: T8.1 implement the context manager.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T8.1 context manager tests pass.
+- Files changed:
+  - `src/agent/context.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `ContextManager` with `build`, `compose`, and `organize` aliases.
+  - Assembled system, conversation, tool, and feedback messages into a single LLM input.
+  - Added a simple summary message when conversation history exceeds `maxHistory`.
+  - Added optional persistence via injected `save` / `load` adapter methods.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/agent/context.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 94 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the minimum needed for T8.1.
+
+## 2026-08-05 - T8.1 Context Manager Red Phase
+
+- Task: T8.1 implement the context manager.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define the expected `ContextManager` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/agent/context.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Assemble system, conversation, tools, and feedback content into a single LLM prompt in order.
+  - Truncate long history while preserving the newest turn and a summary marker.
+  - Persist and restore session context through a storage adapter.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/agent/context.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/agent/context' or its corresponding type declarations.`
+- Human intervention:
+  - Kept `src/agent/context.ts` absent to preserve the Red phase requested for T8.1.
+
 ## 2026-08-03 - T7.2 Credential Manager Refactor Phase
 
 - Task: T7.2 refactor credential secure storage after Green.
