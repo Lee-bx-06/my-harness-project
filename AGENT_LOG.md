@@ -1,5 +1,208 @@
 # AGENT_LOG.md
 
+## 2026-08-03 - T7.2 Credential Manager Refactor Phase
+
+- Task: T7.2 refactor credential secure storage after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `CredentialManager` readability without changing behavior.
+- Files changed:
+  - `src/security/credential.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted fallback file encoding and permission constants.
+  - Split keyring access into `tryGetFromKeyring()`, `trySetInKeyring()`, and `tryDeleteFromKeyring()`.
+  - Extracted `deleteFromFile()` and `encryptStore()` helpers.
+  - Kept keyring-first reads and encrypted-file fallback behavior unchanged.
+  - Preserved the public `CredentialManager` API and constructor options.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/credential.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 91 tests passed.
+- Human intervention:
+  - Kept the refactor scoped to T7.2 code organization only.
+  - Did not add a concrete OS keyring package, CLI credential commands, or new behavior.
+
+## 2026-08-03 - T7.2 Credential Manager Green Phase
+
+- Task: T7.2 implement credential secure storage.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T7.2 credential manager tests pass.
+- Files changed:
+  - `src/security/credential.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `CredentialManager` with `get()`, `set()`, `update()`, and `clear()` methods.
+  - Added an injected `KeyringAdapter` interface for OS keyring-compatible storage.
+  - Reads from keyring first and falls back to encrypted file storage when the keyring misses or is unavailable.
+  - Writes to keyring when available and falls back to encrypted file storage when keyring writes fail.
+  - Stores fallback credentials as an encrypted JSON map using the T7.1 `Encryption` helper.
+  - Creates parent directories for fallback files and writes encrypted content with `0o600` file mode.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/credential.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 91 tests passed.
+- Human intervention:
+  - Kept implementation scoped to the T7.2 red tests.
+  - Did not integrate a concrete OS keyring package or CLI credential commands in this phase.
+
+## 2026-08-03 - T7.2 Credential Manager Red Phase
+
+- Task: T7.2 implement credential secure storage.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add only the failing tests for `CredentialManager` before implementation.
+- Files changed:
+  - `tests/unit/security/credential.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P7 credential security.
+  - Add only the failing test portion for T7.2.
+  - Do not implement `src/security/credential.ts` yet.
+- Expected behavior captured by tests:
+  - Export a `CredentialManager` class from `src/security/credential`.
+  - Store and read credentials through an injected keyring-compatible adapter.
+  - Support credential update and clear operations.
+  - Fall back to encrypted file storage when the keyring is unavailable.
+  - Avoid writing plaintext credentials into the encrypted fallback file.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/security/credential.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/security/credential'`.
+- Human intervention:
+  - Used in-memory and unavailable fake keyrings so tests do not touch the real operating system keyring.
+  - Used temporary credential files so tests do not modify user-level credential storage.
+  - Kept implementation absent to preserve the Red phase.
+
+## 2026-08-03 - T7.1 Encryption Refactor Phase
+
+- Task: T7.1 refactor the encryption utility after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve encryption helper readability without changing validated behavior.
+- Files changed:
+  - `src/security/encryption.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted payload version and minimum Argon2 salt length constants.
+  - Centralized Argon2id options for the AES-256-GCM key length.
+  - Added small base64 encode/decode helpers for payload fields.
+  - Reused constants in payload validation to avoid duplicated literals.
+  - Preserved the public `Encryption` API and encrypted payload shape.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 88 tests passed.
+- Human intervention:
+  - Kept the refactor scoped to T7.1 code organization only.
+  - Did not add new behavior, credential storage, or audit remediation.
+
+## 2026-08-03 - T7.1 Argon2id Compliance Green Phase
+
+- Task: T7.1 replace the temporary KDF with Argon2id.
+- Superpowers workflow stage: test-driven-development.
+- Goal: make the Argon2id compliance test pass while preserving encryption round-trip behavior.
+- Files changed:
+  - `src/security/encryption.ts`
+  - `package.json`
+  - `package-lock.json`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Replaced Node `scrypt` key derivation with the `argon2` package.
+  - Configured `argon2.hash()` with `type: argon2.argon2id`, `raw: true`, and a 32-byte output for AES-256-GCM.
+  - Updated encrypted payload metadata to record `kdf` as `argon2id`.
+  - Kept 16-byte random salts for encryption payloads.
+  - Normalized short externally supplied salts in `deriveKey()` so existing tests and callers can pass simple string salts.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 88 tests passed.
+- Human intervention:
+  - `argon2` was installed with `npm install argon2` before this implementation step.
+  - Did not address the npm audit report in this T7.1 scope.
+
+## 2026-08-03 - T7.1 Argon2id Compliance Red Phase
+
+- Task: T7.1 tighten encryption utility tests for PLAN.md compliance.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add a failing test that makes the required Argon2id KDF observable.
+- Files changed:
+  - `tests/unit/security/encryption.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - The previous T7.1 tests covered key derivation behavior but did not prove the implementation used Argon2id.
+  - Add only the failing test for Argon2id compliance before changing implementation.
+- Expected behavior captured by tests:
+  - Encrypted payloads must record `kdf` as `argon2id`.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: expected payload `kdf` to be `argon2id`, actual value was `scrypt`.
+- Human intervention:
+  - Kept the current implementation unchanged to preserve the Red phase.
+  - Next Green phase should replace the current KDF with Argon2id and update payload metadata accordingly.
+
+## 2026-08-03 - T7.1 Encryption Green Phase
+
+- Task: T7.1 implement the encryption utility.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T7.1 encryption tests pass.
+- Files changed:
+  - `src/security/encryption.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `Encryption` with `encrypt()`, `decrypt()`, and `deriveKey()` methods.
+  - Used Node's built-in AES-256-GCM support for authenticated encryption.
+  - Stored salt, IV, auth tag, algorithm, KDF, and ciphertext in the encrypted JSON payload.
+  - Used Node's built-in `scrypt` KDF for the minimum dependency-free Green phase.
+  - Added payload validation and string parameter validation.
+- Verification commands:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+  - Full test suite result: 87 tests passed.
+- Human intervention:
+  - Kept the implementation scoped to the T7.1 red tests.
+  - Did not add credential storage or keyring/file fallback behavior; those remain for T7.2.
+
+## 2026-08-03 - T7.1 Encryption Red Phase
+
+- Task: T7.1 implement the encryption utility.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add only the failing tests for the AES-256-GCM encryption helper before implementation.
+- Files changed:
+  - `tests/unit/security/encryption.test.ts`
+  - `AGENT_LOG.md`
+- Key prompt/context:
+  - Follow TDD for P7 credential security.
+  - Add only the failing test portion for T7.1.
+  - Do not implement `src/security/encryption.ts` yet.
+- Expected behavior captured by tests:
+  - Export an `Encryption` class from `src/security/encryption`.
+  - Support encrypt/decrypt round-trips for a secret string and passphrase.
+  - Derive stable keys from the same passphrase and salt, and different keys for different salts.
+- Verification command:
+  - `node --test --require ts-node/register tests/unit/security/encryption.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/security/encryption'`.
+- Human intervention:
+  - Kept the implementation absent to preserve the Red phase.
+  - Deferred `CredentialManager` work to T7.2.
+
 ## 2026-08-03 - T6.2 Config Loader Refactor Phase
 
 - Task: T6.2 refactor configuration loading and merging after Green.
