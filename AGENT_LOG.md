@@ -1,5 +1,132 @@
 # AGENT_LOG.md
 
+## 2026-08-01 - T5.2 Memory Retriever Refactor Phase
+
+- Task: T5.2 refactor the memory retriever after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `MemoryRetriever` structure without changing behavior.
+- Files changed:
+  - `src/memory/retriever.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Split retrieval into candidate loading, ranking, and limit application.
+  - Extracted ranking into a standalone helper.
+  - Named the unique-keyword relevance weight.
+  - Preserved the public API and relevance ordering behavior.
+- Verification commands:
+  - `npm test -- tests/unit/memory/retriever.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T5.2 TDD refactor step.
+
+## 2026-08-01 - T5.2 Memory Retriever Green Phase
+
+- Task: T5.2 implement the memory retriever.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T5.2 memory retriever tests pass.
+- Files changed:
+  - `src/memory/retriever.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `MemoryRetriever` with `retrieve()` and `search()` entry points.
+  - Retrieved memories from `MemoryStore` and scored them with simple keyword matching.
+  - Sorted results by descending relevance and applied optional type and limit filters.
+  - Added light token normalization for plural and persistence/persistent matching.
+- Verification commands:
+  - `npm test -- tests/unit/memory/retriever.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T5.2 Green phase with the smallest implementation needed for the current red tests.
+
+## 2026-08-01 - T5.2 Memory Retriever Red Phase
+
+- Task: T5.2 implement the memory retriever.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `MemoryRetriever` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/memory/retriever.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Retrieve memories that match query keywords.
+  - Sort matches by descending relevance.
+  - Apply type filtering and result limits.
+- Verification command:
+  - `npm test -- tests/unit/memory/retriever.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/memory/retriever'`.
+- Human intervention:
+  - Kept `src/memory/retriever.ts` absent to preserve the Red phase requested for T5.2.
+
+## 2026-08-01 - T5.1 Memory Store Refactor Phase
+
+- Task: T5.1 refactor the memory store after Green.
+- Superpowers workflow stage: test-driven-development.
+- Goal: improve `MemoryStore` structure without changing behavior.
+- Files changed:
+  - `src/memory/store.ts`
+  - `AGENT_LOG.md`
+- Refactor notes:
+  - Extracted schema creation into a focused helper.
+  - Consolidated repeated memory SELECT columns and list query construction.
+  - Split record creation and update merging from SQLite persistence calls.
+  - Preserved the public API and persisted record shape.
+- Verification commands:
+  - `npm test -- tests/unit/memory/store.test.ts`
+  - `npm run typecheck`
+  - `npm test`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - No behavior changes were introduced; this completes the T5.1 TDD refactor step.
+
+## 2026-08-01 - T5.1 Memory Store Green Phase
+
+- Task: T5.1 implement the memory store.
+- Superpowers workflow stage: test-driven-development.
+- Goal: add the minimum implementation needed to make the T5.1 memory store tests pass.
+- Files changed:
+  - `src/memory/store.ts`
+  - `AGENT_LOG.md`
+- Implementation notes:
+  - Added `MemoryStore` backed by SQLite.
+  - Supported initialization, close, save, get, list, update, delete, and expired-memory cleanup.
+  - Serialized memory metadata as JSON and converted timestamp fields back to `Date` objects.
+  - Kept retrieval-specific ranking out of scope for T5.2.
+- Verification commands:
+  - `npm test -- tests/unit/memory/store.test.ts`
+  - `npm run typecheck`
+- Verification result:
+  - All commands passed.
+- Human intervention:
+  - Completed the T5.1 Green phase with the smallest implementation needed for the current red tests.
+
+## 2026-08-01 - T5.1 Memory Store Red Phase
+
+- Task: T5.1 implement the memory store.
+- Superpowers workflow stage: test-driven-development.
+- Goal: define expected `MemoryStore` behavior with failing tests before implementation.
+- Files changed:
+  - `tests/unit/memory/store.test.ts`
+  - `AGENT_LOG.md`
+- Expected behavior captured by tests:
+  - Save and read session, project, and long-term memories.
+  - Update, delete, and filter memories by type.
+  - Persist memories across store instances using the same SQLite database path.
+  - Clear expired memories while preserving active entries.
+- Verification command:
+  - `npm test -- tests/unit/memory/store.test.ts`
+- Verification result:
+  - Failed as expected in the Red phase.
+  - Failure reason: `Cannot find module '../../../src/memory/store'`.
+- Human intervention:
+  - Kept `src/memory/store.ts` absent to preserve the Red phase requested for T5.1.
+
 ## 2026-08-01 - T4.3 Feedback Loop Refactor Phase
 
 - Task: T4.3 refactor the feedback loop after Green.

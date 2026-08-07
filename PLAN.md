@@ -461,6 +461,11 @@ interface Message {
 - 测试记忆存储、读取、更新、删除
 - 测试过期清理
 
+**提交记录**：
+- Red: `0a00ee1` - test: add failing tests for store
+- Green: `6e9cde1` - feat: implement store
+- Refactor: `06e74d3` - refactor: T5.1
+
 ### T5.2：实现记忆检索
 
 **目标**：实现记忆检索机制
@@ -478,6 +483,11 @@ interface Message {
 - 编写单元测试：`tests/unit/memory/retriever.test.ts`
 - 测试关键词检索
 - 测试相关性排序
+
+**提交记录**：
+- Red: `7919bb8` - test: add failing tests for retriever
+- Green: `042d8f4` - feat: implement memory retriever
+- Refactor: `04677cd` - refactor: T5.2
 
 ---
 
@@ -772,3 +782,10 @@ P3, P4 ──→ P10
   - Tests: completed in `tests/unit/feedback/*.test.ts`.
   - Verification: `npm run typecheck` and `npm test` pass.
   - Commit hashes: `cdfc59b`, `32cf552`, `ea88531`, `95f24bf`, `ebe2cd1`, `0b0bf69`, `20d2119`, `fe7d4e1`, `3634cef`.
+
+- P5 memory system: completed.
+  - T5.1 memory store: completed in `src/memory/store.ts`.
+  - T5.2 memory retriever: completed in `src/memory/retriever.ts`.
+  - Tests: completed in `tests/unit/memory/*.test.ts`.
+  - Verification: `npm run typecheck` and `npm test` pass.
+  - Commit hashes: `0a00ee1`, `6e9cde1`, `06e74d3`, `7919bb8`, `042d8f4`, `04677cd`.
