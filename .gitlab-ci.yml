@@ -1,0 +1,22 @@
+stages:
+  - test
+
+unit-test:
+  stage: test
+  image: node:20-bookworm-slim
+  variables:
+    npm_config_cache: "$CI_PROJECT_DIR/.npm"
+  cache:
+    key:
+      files:
+        - package-lock.json
+    paths:
+      - .npm/
+  script:
+    - npm ci
+    - npm run typecheck
+    - npm test
+    - npm run build
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
