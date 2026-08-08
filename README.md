@@ -122,19 +122,82 @@ AGENT_MEMORY_MAX_HISTORY
 
 ## 分发说明
 
-推荐的分发方式是先编译再发布编译产物：
+项目提供两条分发链路：
 
 ```bash
 npm run build
+npm run package:binary
+docker build -t my-harness-project .
+```
+
+### Docker 分发
+
+镜像适合需要稳定运行环境、原生依赖一致性和本地挂载工作区的场景。
+
+构建：
+
+```bash
+docker build -t my-harness-project .
+```
+
+运行：
+
+```bash
+docker run --rm -it my-harness-project --help
+docker run --rm -it -v "$(pwd):/workspace" my-harness-project run --instruction "检查仓库状态"
+```
+
+### 原生发布包
+
+脚本会先执行 `npm run build`，再生成平台相关的可执行发布目录，里面包含：
+
+1. 编译后的 `dist/`
+2. 运行时依赖 `node_modules/`
+3. `bin/agent` 启动入口
+4. 平台启动器 `agent-harness` / `agent-harness.cmd`
+
+构建：
+
+```bash
+npm run package:binary
+```
+
+默认输出示例：
+
+```text
+release/linux-x64/
+release/win-x64/
+release/macos-arm64/
+```
+
+用户拿到发布包后，直接运行目录内的启动器即可。
+
+### 发布链路
+
+正式发布建议走这条链路：
+
+1. 本地或 CI 执行 `npm run build` 和 `npm test`。
+2. CI 生成 Docker 镜像和原生发布包。
+3. 将 Docker 镜像推送到 Docker Hub 或 GHCR。
+4. 将可执行发布目录和 `release-info.json` 上传到 GitHub Releases。
+5. 在 Releases 页面提供对应版本的下载链接。
+
+示例地址占位：
+
+```text
+https://github.com/<owner>/<repo>/releases
+ghcr.io/<owner>/<repo>:<tag>
+docker.io/<owner>/<repo>:<tag>
 ```
 
 编译后可分发的内容主要是：
 
 1. `dist/` 下的 JS 和 `.d.ts` 产物。
 2. `bin/agent` 作为 CLI 启动入口。
-3. `package.json`、`package-lock.json` 以及运行时需要的配置文件。
+3. `release/` 下的可执行发布目录和发布元数据。
+4. `package.json`、`package-lock.json` 以及运行时需要的配置文件。
 
-如果要打包成 npm 包，发布前应确保 `dist/` 已生成，并且消费方安装依赖后可以直接运行 `bin/agent`。
+如果要打包成 npm 包，发布前应确保 `dist/` 已生成；如果要打包成原生发布包，发布前应先运行 `npm run package:binary`。
 
 ## 配置示例
 
