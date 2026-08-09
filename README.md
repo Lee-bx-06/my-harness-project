@@ -174,21 +174,15 @@ release/macos-arm64/
 
 ### 发布链路
 
-正式发布建议走这条链路：
+当前交付包含本地可构建的 Dockerfile 和原生发布包脚本，未推送到公开 Docker registry，也未上传 GitHub Releases。
 
-1. 本地或 CI 执行 `npm run build` 和 `npm test`。
-2. CI 生成 Docker 镜像和原生发布包。
-3. 将 Docker 镜像推送到 Docker Hub 或 GHCR。
-4. 将可执行发布目录和 `release-info.json` 上传到 GitHub Releases。
-5. 在 Releases 页面提供对应版本的下载链接。
+本地发布验证链路：
 
-示例地址占位：
+1. 本地或 CI 执行 `npm run build`、`npm test` 和 `npm run package:binary`。
+2. 使用 `docker build -t my-harness-project .` 验证镜像可构建。
+3. 使用 `release/<platform-arch>/` 下的启动器验证原生发布目录可运行。
 
-```text
-https://github.com/<owner>/<repo>/releases
-ghcr.io/<owner>/<repo>:<tag>
-docker.io/<owner>/<repo>:<tag>
-```
+如需正式公开发布，可在上述验证通过后，将 Docker 镜像推送到 Docker Hub 或 GHCR，并将可执行发布目录和 `release-info.json` 上传到 GitHub Releases。
 
 编译后可分发的内容主要是：
 
